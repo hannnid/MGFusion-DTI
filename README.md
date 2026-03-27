@@ -1,13 +1,14 @@
-# ColdstartCPI
-ColdstartCPI: Induced-fit theory-guided DTI predictive model with improved generalization performance
+# MGFusion-DTI
+MGFusion-DTI: Structure-Aware Multi-Granularity Fusion for Cold-Start DTI Prediction<img width="432" height="53" alt="image" src="https://github.com/user-attachments/assets/8794e3aa-b865-4e18-a2ac-46be39bab6eb" />
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/zhaoqichang/ColdstartCPI/blob/main/Demo/ColdstartCPI_demo.ipynb)
 
 This repository contains the source code and the data.
 
-Predicting compound-protein interactions (CPIs) is a critical step in drug discovery. Existing deep-learning-based methods show promising performance, but generally fail to generalize well to novel compounds and proteins due to the high sparsity of CPI data. To this end, we propose ColdstartCPI, a two-step framework that generates compound and protein representations with unsupervised pre-training, utilizes a Transformer-based structure to unify the pre-trained feature space with the CPI prediction space, and improves interactions for novel compounds and proteins. ColdstartCPI is evaluated under four realistic scenarios and achieves accurate and robust performance against state-of-the-art baselines. Furthermore, we validate the top predictions of ColdstartCPI through comparison with the experimental evidence and docking simulations. Our results indicate that ColdstartCPI provides a unified framework for integrating pre-trained models with CPI prediction tasks, which promises to be a powerful tool for drug discovery.
+Drug-target interaction (DTI) prediction plays a crucial role in computational drug discovery, facilitating drug repurposing and accelerating new drug development. Despite recent advances in deep learning-based methods, model performance remains limited under cold-start scenarios, where unseen drugs or targets are encountered. Moreover, existing approaches often rely on global-level feature fusion, which may overlook fine-grained local interactions driven by key residues and neglect the structural context of proteins. To address these challenges, we propose a structure-aware multi-granularity fusion framework, termed MGFusion-DTI, for DTI prediction under cold-start scenarios. The proposed model integrates structure-aware protein representations with sequence-based drug features and adopts a multi-level interaction modeling strategy. Specifically, a cross-attention mechanism is employed to capture fine-grained interactions between drug substructures and protein residues, with emphasis on residues located in predicted binding pockets. In parallel, global representations are jointly modeled to account for potential long-range regulatory effects, enabling the model to capture both local binding patterns and global structural dependencies. Extensive experiments on three benchmark datasets demonstrate that MGFusion-DTI consistently outperforms state-of-the-art methods across both warm-start and multiple cold-start scenarios, with particularly strong performance in blind-start settings.<img width="432" height="193" alt="image" src="https://github.com/user-attachments/assets/bc5ac1ad-bfd3-49dc-bdb2-4be307f76b50" />
 
-## ColdstartCPI framwork
+
+## MGFusion-DTI framwork
 
 <div align="center">
 <p><img src="model.jpg" width="600" /></p>
@@ -24,7 +25,7 @@ Predicting compound-protein interactions (CPIs) is a critical step in drug disco
 
 ## Installation
 
-ColdstartCPI is built on [Python3](https://www.python.org/) and [PyTorch](https://pytorch.org/).
+MGFusion-DTI is built on [Python3](https://www.python.org/) and [PyTorch](https://pytorch.org/).
    - Prerequisites: \
        [Python3.*](https://www.python.org/) (version>=3.8)\
 	   [gensim](https://github.com/piskvorky/gensim.git) (version=3.8.3)\
@@ -52,11 +53,11 @@ Recommended OS: Linux (Ubuntu 16.04, CentOS 7, etc.)
 #### Installation
 
 ```shell
-# download ColdstartCPI
-git clone https://github.com/zhaoqichang/ColdstartCPI
-cd ColdstartCPI
+# download MGFusion-DTI
+git clone https://github.com/hannnid/MGFusion-DTI
+cd MGFusion-DTI
 
-# create environment named coldstartcpi
+# create environment named MGFusion-DTI
 conda create -n coldstartcpi python=3.8.0
 
 # then the environment can be activated to use
@@ -173,26 +174,6 @@ Provides trained models and scripts to predict CPIs between user-submitted compo
 
 + Source_Data: Source data and code used in the manuscript to plot individual figures and tables.
 
-## Demo data
-
-We provide ColdstartCPI running demo through a cloud Jupyter notebook on [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/zhaoqichang/ColdstartCPI/blob/main/Demo/ColdstartCPI_demo.ipynb). Note it is based on a small sample dataset due to the resource limitation of a free colab account. 
-
-The **expected output and run time** of demo has been provided in the colab notebook for verification.
-
-Check [demo](/demo) for some demo data to play with: python demo_train.py
-
-+ Dataset：The demo data.
-
-+ model.py: The model.
-
-+ dataset.py
-
-+ demo_train.py: The code of demo.
-
-	+ python demo_train.py
-
-	The results are saved in the Results folder.
-
 
 ## Reproducibility
 
@@ -230,67 +211,15 @@ We also provide models that have been trained for direct testing. For the warm s
 
 	+ python train_BindingDB_AIBind.py --scenarios warm_start
 	
-The results are saved in the [_Results_](/Train/ColdstartCPI/Results) folder.
+The results are saved in the [_Results_](/Train/MGFusion-DTI/Results) folder.
 
-### Prediction
-
-We provide the trained model and scripts to predict the interactions between custom compounds and proteins.
-
-You can previde a txt file for custom compounds and a txt file for custom proteins, as follows:
-
-For compounds:
-
-	```
-	Compound_ID SMILES 
-	DB00303 [H][C@]12[C@@H]... 
-	DB00114 CC1=NC=C(COP(O)... 
-	DB00117 N[C@@H](CC1=CNC... 
-	...
-	...
-	...
-	DB00441 NC1=NC(=O)N(C=C... 
-	DB08532 FC1=CC=CC=C1C1=... 
-
-	```
-For proteins:
-
-	```
-	Protein_ID Amino_acid_sequence 
-	P45059 MVKFNSSRKSGKSKKTIRKLT... 
-	P19113 MMEPEEYRERGREMVDYICQY... 
-	P19113 MMEPEEYRERGREMVDYICQY... 
-	...
-	...
-	...
-	P48050 MHGHSRNGQAHVPRRKRRNRF... 
-	O00341 MVPHAILARGRDVCRRNGLLI... 
-
-	```	
-For details on the exact format of the TXT file, please see [_Custom_Data/default_](/Predictions/Custom_Data/default) folder.
-
-Simple usage example with default input file:
-
-cd ColdstartCPI/Predictions
-
-+ python predictor.py --identifier default
-
-"identifier" is an identifier for this run. And the results are saved in the "./Predictions/default" folder.
-
-Simple usage example with customed input file:
-
-cd ColdstartCPI/Predictions
-
-+ python predictor.py --compound_path path/to/customed_compounds.txt --protein_path path/to/customed_proteins.txt --identifier identifier
-
-"identifier" is an identifier for this run. And the results are saved in the "./Predictions/identifier" folder.
 
 ## Contact
 
 If any questions, please do not hesitate to contact us at:
 
-Qichang Zhao, zhaoqichang@csu.edu.cn
+Hui Han, s2530161@u.tsukuba.ac.jp
 
-Jianxin Wang, jxwang@csu.edu.cn
 
 		
 
