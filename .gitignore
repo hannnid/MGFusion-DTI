@@ -1,0 +1,91 @@
+############################
+# 🧠 Python
+############################
+__pycache__/
+*.py[cod]
+*.so
+.Python
+
+############################
+# 🧪 Virtual Environment
+############################
+venv/
+env/
+.venv/
+
+############################
+# 💻 IDE / Editor
+############################
+.idea/
+.vscode/
+*.iml
+
+############################
+# 📊 Logs
+############################
+logs/
+*.log
+
+############################
+# 🗂 System files
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# 📓 Jupyter
+############################
+.ipynb_checkpoints/
+
+############################
+# 📦 Large ML artifacts（模型/特征）
+############################
+*.pkl
+*.pt
+*.pth
+*.h5
+*.ckpt
+*.bin
+*.npy
+*.npz
+*.zst
+
+############################
+# 📦 Compressed files（可选）
+############################
+*.tar.gz
+*.zip
+
+############################
+# 🚫 Third-party tools（关键！！）
+############################
+# ProPocket / p2rank（超大）
+Feature_generation/ProPocket/
+
+# foldseek 二进制
+Feature_generation/Saport/get_stru-aware_seq/utils/foldseek
+
+############################
+# 📈 Training outputs（结果）
+############################
+Train/**/Results/
+
+############################
+# 📂 Optional large folders（按需打开）
+############################
+# Datasets/
+# Pretrian_models/
+# Predictions/
+
+############################
+# 📁 Case study（如果存在）
+############################
+# 如果你目录确实叫 "case study"（带空格），保留这一行
+case study/
+Datasets/
+Draw/
+HAN_notes/
+Predictions/
+Source_Data/
+Demo/
+Train/ColdstartCPI/
