@@ -11,7 +11,7 @@ Drug-target interaction (DTI) prediction plays a crucial role in computational d
 ## MGFusion-DTI framwork
 
 <div align="center">
-<p><img src="model.jpg" width="600" /></p>
+<p><img src="framwork.jpg" width="600" /></p>
 </div>
 
 ## Contents
