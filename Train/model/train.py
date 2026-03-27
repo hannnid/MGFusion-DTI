@@ -1,279 +1,256 @@
 # -*- coding: utf-8 -*-
 """
-@Time:Created on 2020/8/23 10:10
+@Time:Created on 2021/7/
 @author: Qichang Zhao
-@Filename: model.py
-@Software: PyCharm
 """
+import warnings
+warnings.filterwarnings("ignore")
+import os
 
+if "CUDA_VISIBLE_DEVICES" not in os.environ:
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # 默认值
+import random
+
+from model_MutiAttention import ColdstartCPI
+
+from dataset import load_scenario_dataset
+from prefetch_generator import BackgroundGenerator
+from tqdm import tqdm
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from sklearn.metrics import accuracy_score, roc_auc_score, precision_score, f1_score, recall_score,precision_recall_curve, auc
+from sklearn import metrics
+import argparse
 
-class CAN_Layer(nn.Module):
-    def __init__(self, hidden_dim, num_heads, agg_mode, use_mask):
-        super(CAN_Layer, self).__init__()
-        self.agg_mode = agg_mode
-        # self.group_size = args.group_size  # Control Fusion Scale
-        self.hidden_dim = hidden_dim
-        self.num_heads = num_heads
-        self.head_size = hidden_dim // num_heads
-        self.use_mask = use_mask
+def roc_auc(y,pred):
+    fpr, tpr, thresholds = metrics.roc_curve(y, pred)
+    roc_auc = metrics.auc(fpr, tpr)
+    return roc_auc
 
-        self.query_p = nn.Linear(hidden_dim, hidden_dim, bias=False)
-        self.key_p = nn.Linear(hidden_dim, hidden_dim, bias=False)
-        self.value_p = nn.Linear(hidden_dim, hidden_dim, bias=False)
+def pr_auc(y, pred):
+    precision, recall, thresholds = metrics.precision_recall_curve(y, pred)
+    pr_auc = metrics.auc(recall, precision)
+    return pr_auc
 
-        self.query_d = nn.Linear(hidden_dim, hidden_dim, bias=False)
-        self.key_d = nn.Linear(hidden_dim, hidden_dim, bias=False)
-        self.value_d = nn.Linear(hidden_dim, hidden_dim, bias=False)
+import os,pickle
+def load_pickle(path):
+    with open(path, 'rb') as f:
+        return pickle.load(f)
 
-    def alpha_logits(self, logits, mask_row, mask_col, inf=1e6):
-        N, L1, L2, H = logits.shape
-        if not self.use_mask:
-            alpha = torch.softmax(logits, dim=2)
-            return alpha
-        else:
-            mask_row = mask_row.view(N, L1, 1).repeat(1, 1, H)
-            mask_col = mask_col.view(N, L2, 1).repeat(1, 1, H)
+def show_result(DATASET1, DATASET2, scenarios, Loss_List, Accuracy_List,Precision_List,Recall_List,F1_score_List,AUC_List,AUPR_List):
+    Loss_mean, Loss_std = np.mean(Loss_List), np.sqrt(np.var(Loss_List))
+    Accuracy_mean, Accuracy_std = np.mean(Accuracy_List), np.sqrt(np.var(Accuracy_List))
+    Precision_mean, Precision_var = np.mean(Precision_List), np.var(Precision_List)
+    Recall_mean, Recall_var = np.mean(Recall_List), np.var(Recall_List)
+    F1_score_mean, F1_score_var = np.mean(F1_score_List), np.sqrt(np.var(F1_score_List))
+    AUC_mean, AUC_std = np.mean(AUC_List), np.sqrt(np.var(AUC_List))
+    PRC_mean, PRC_std = np.mean(AUPR_List), np.sqrt(np.var(AUPR_List))
+    print("The results on {} of {} for {}:".format(DATASET1,DATASET2,scenarios))
+    with open(save_path + 'results.txt', 'a') as f:
+        f.write('{}:'.format(DATASET1) + '\n')
+        f.write('Loss(std):{:.4f}({:.4f})'.format(Loss_mean, Loss_std) + '\n')
+        f.write('Accuracy(std):{:.4f}({:.4f})'.format(Accuracy_mean, Accuracy_std) + '\n')
+        f.write('Precision(std):{:.4f}({:.4f})'.format(Precision_mean, Precision_var) + '\n')
+        f.write('Recall(std):{:.4f}({:.4f})'.format(Recall_mean, Recall_var) + '\n')
+        f.write('F1_score(std):{:.4f}({:.4f})'.format(F1_score_mean, F1_score_var) + '\n')
+        f.write('AUC(std):{:.4f}({:.4f})'.format(AUC_mean, AUC_std) + '\n')
+        f.write('PRC(std):{:.4f}({:.4f})'.format(PRC_mean, PRC_std) + '\n')
+    print('Loss(std):{:.4f}({:.4f})'.format(Loss_mean, Loss_std))
+    print('Accuracy(std):{:.4f}({:.4f})'.format(Accuracy_mean, Accuracy_std))
+    print('Precision(std):{:.4f}({:.4f})'.format(Precision_mean, Precision_var))
+    print('Recall(std):{:.4f}({:.4f})'.format(Recall_mean, Recall_var))
+    print('F1_score(std):{:.4f}({:.4f})'.format(F1_score_mean, F1_score_var))
+    print('AUC(std):{:.4f}({:.4f})'.format(AUC_mean, AUC_std))
+    print('PRC(std):{:.4f}({:.4f})'.format(PRC_mean, PRC_std))
 
+def test_precess(model,pbar,LOSS):
+    model.eval()
+    test_losses = []
+    Y, P, S = [], [], []
+    with torch.no_grad():
+        for i, data in pbar:
+            '''data preparation '''
+            input_batch, labels = data
+            labels = labels.cuda()
+            input_batch = [d.cuda() for d in input_batch]
+            predicted_scores = model(input_batch)
+            loss = LOSS(predicted_scores, labels)
+            correct_labels = labels.to('cpu').data.numpy()
+            predicted_scores = F.softmax(predicted_scores, 1).to('cpu').data.numpy()
+            predicted_labels = np.argmax(predicted_scores, axis=1)
+            predicted_scores = predicted_scores[:, 1]
 
-            mask_pair = torch.einsum('blh, bkh->blkh', mask_row, mask_col)
+            Y.extend(correct_labels)
+            P.extend(predicted_labels)
+            S.extend(predicted_scores)
+            test_losses.append(loss.item())
+    Precision = precision_score(Y, P)
+    Reacll = recall_score(Y, P)
+    F1_score = f1_score(Y, P)
+    AUC = roc_auc(Y,S)
+    tpr, fpr, _ = precision_recall_curve(Y, S)
+    PRC = pr_auc(Y,S)
+    Accuracy = accuracy_score(Y, P)
+    test_loss = np.average(test_losses)
+    return Y, P, test_loss, Accuracy, Precision, Reacll, F1_score, AUC, PRC
 
-            logits = torch.where(mask_pair, logits,
-                                 logits - inf)  # 如果mask_pair=True则保持原logits，否则logits设为负无穷。这样在做softmax时，无效未知的注意力权重会变成0
-            alpha = torch.softmax(logits, dim=2)
-            mask_row = mask_row.view(N, L1, 1, H).repeat(1, 1, L2, 1)
-            alpha = torch.where(mask_row, alpha, torch.zeros_like(alpha))
-            return alpha
+def test_model(dataset_load,save_path,DATASET, LOSS,save = False):
+    test_pbar = tqdm(
+        enumerate(
+            BackgroundGenerator(dataset_load)),
+        total=len(dataset_load))
+    T, P, loss_test, Accuracy_test, Precision_test, Recall_test, F1_score_test, AUC_test, PRC_test = \
+        test_precess(model,test_pbar, LOSS)
+    if save:
+        with open(save_path + "/{}_prediction.txt".format(DATASET), 'a') as f:
+            for i in range(len(T)):
+                f.write(str(T[i]) + " " + str(P[i]) + '\n')
+    results = 'Loss:{:.5f};Accuracy:{:.5f};Precision:{:.5f};Recall:{:.5f};F1 score:{:.5f};AUC:{:.5f};PRC:{:.5f}.' \
+        .format(loss_test, Accuracy_test, Precision_test, Recall_test, F1_score_test, AUC_test, PRC_test)
+    print(results)
+    return results,loss_test, Accuracy_test, Precision_test, Recall_test, F1_score_test, AUC_test, PRC_test
 
-    def apply_heads(self, x, n_heads, n_ch):
-        s = list(x.size())[:-1] + [n_heads, n_ch]  # 通常D=n_heads*n_ch (64,512,768)-->(64,512,8,96)
-        return x.view(*s)  # 对x进行reshape 从(B，L，D)-->(B,L,n_head,n_ch)
-
-    def forward(self, protein, drug, mask_prot, mask_drug):
-        # True：有效token(需要保留)  False：填充token(需要被mask)
-        # protein_grouped:(64,512,768)--->query_prot(64,512,8,96) 经过query_p(线性投影)形状不变，但数值被投影到了新的语义空间，再通过apply_heads被切分为多头
-        query_prot = self.apply_heads(self.query_p(protein), self.num_heads, self.head_size)
-        key_prot = self.apply_heads(self.key_p(protein), self.num_heads, self.head_size)
-        value_prot = self.apply_heads(self.value_p(protein), self.num_heads, self.head_size)
-
-        query_drug = self.apply_heads(self.query_d(drug), self.num_heads, self.head_size)
-        key_drug = self.apply_heads(self.key_d(drug), self.num_heads, self.head_size)
-        value_drug = self.apply_heads(self.value_d(drug), self.num_heads, self.head_size)
-
-        # Compute attention scores
-        logits_pp = torch.einsum('blhd, bkhd->blkh', query_prot, key_prot)
-        logits_pd = torch.einsum('blhd, bkhd->blkh', query_prot, key_drug)
-        logits_dp = torch.einsum('blhd, bkhd->blkh', query_drug, key_prot)
-        logits_dd = torch.einsum('blhd, bkhd->blkh', query_drug, key_drug)
-        # print("logits_pp:", logits_pp.shape)
-
-        # 以下计算得到注意力权重 形状都是(64,512,512,8)
-        alpha_pp = self.alpha_logits(logits_pp, mask_prot, mask_prot)
-        alpha_pd = self.alpha_logits(logits_pd, mask_prot, mask_drug)
-        alpha_dp = self.alpha_logits(logits_dp, mask_drug, mask_prot)
-        alpha_dd = self.alpha_logits(logits_dd, mask_drug, mask_drug)
-
-        # 得到的prot_embedding形状(64,512,768)
-        prot_embedding = (torch.einsum('blkh, bkhd->blhd', alpha_pp, value_prot).flatten(-2) +
-                          torch.einsum('blkh, bkhd->blhd', alpha_pd, value_drug).flatten(-2)) / 2
-        drug_embedding = (torch.einsum('blkh, bkhd->blhd', alpha_dp, value_prot).flatten(-2) +
-                          torch.einsum('blkh, bkhd->blhd', alpha_dd, value_drug).flatten(-2)) / 2
-
-        if self.agg_mode == "cls":
-            prot_embed = prot_embedding[:, 0]  # query : [batch_size, hidden]
-            drug_embed = drug_embedding[:, 0]  # query : [batch_size, hidden]
-        elif self.agg_mode == "mean_all_tok":
-            prot_embed = prot_embedding.mean(1)  # query : [batch_size, hidden]
-            drug_embed = drug_embedding.mean(1)  # query : [batch_size, hidden]
-        elif self.agg_mode == "mean":
-            prot_embed = (prot_embedding * mask_prot.unsqueeze(-1)).sum(1) / mask_prot.sum(
-                -1).unsqueeze(-1)
-            drug_embed = (drug_embedding * mask_drug.unsqueeze(-1)).sum(1) / mask_drug.sum(
-                -1).unsqueeze(-1)
-        else:
-            raise NotImplementedError()
-
-
-
-        query_embed = torch.cat([prot_embed, drug_embed], dim=1)
-
-        # print("query_embed:", query_embed.shape)
-        return query_embed
-
-#
-# 用门控融合代替transformer
-class BiGatedFusion(nn.Module):
-    def __init__(self, dim):
-        super().__init__()
-        self.gate_cp = nn.Sequential(nn.Linear(dim*2, dim), nn.ReLU(), nn.Linear(dim, 1), nn.Sigmoid())
-        self.gate_pc = nn.Sequential(nn.Linear(dim*2, dim), nn.ReLU(), nn.Linear(dim, 1), nn.Sigmoid())
-        self.out_ln = nn.LayerNorm(dim)
-
-    def forward(self, c, p):  # (B, D), (B, D)
-        g_cp = self.gate_cp(torch.cat([c, p], dim=-1))
-        g_pc = self.gate_pc(torch.cat([p, c], dim=-1))
-        c_new = self.out_ln(g_cp * p + (1 - g_cp) * c)
-        p_new = self.out_ln(g_pc * c + (1 - g_pc) * p)
-        # return c_new, p_new
-        global_embed = torch.cat([c_new, p_new], dim=1)
-        return global_embed
-class MlPdecoder_CAN(nn.Module):
-
-    def __init__(self, input_dim, binary=2, dropout=0.1):  # unify_num=512
-        super(MlPdecoder_CAN, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 1024)
-        self.bn1 = nn.BatchNorm1d(1024)
-        self.fc2 = nn.Linear(1024, 512)
-        self.bn2 = nn.BatchNorm1d(512)
-        self.fc3 = nn.Linear(512, 256)
-        self.bn3 = nn.BatchNorm1d(256)
-        self.output = nn.Linear(256, binary)
-        self.dropout = nn.Dropout(dropout)
-
-    def forward(self, x):
-        x = self.dropout(self.bn1(F.relu(self.fc1(x))))
-        x = self.dropout(self.bn2(F.relu(self.fc2(x))))
-        x = self.dropout(self.bn3(F.relu(self.fc3(x))))
-        return self.output(x)
-class ColdstartCPI(nn.Module):
-    def __init__(self,unify_num,head_num, dataset = "BindingDB_AIBind"):  # unify_num=512,head_num=4
-        super(ColdstartCPI, self).__init__()
-        self.c_g_unit = nn.Sequential(
-            nn.Linear(300, 300),
-            nn.PReLU(),
-            nn.Linear(300, unify_num),
-            nn.PReLU()
-        )
-        self.c_m_unit = nn.Sequential(
-            nn.Linear(300, 300),
-            nn.PReLU(),
-            nn.Linear(300, unify_num),
-            nn.PReLU()
-        )
-
-        self.p_g_unit = nn.Sequential(
-            nn.Linear(1024, 1024),
-            nn.PReLU(),
-            nn.Linear(1024, unify_num),
-            nn.PReLU()
-        )
-        self.p_m_unit = nn.Sequential(
-            nn.Linear(1024, 1024),
-            nn.PReLU(),
-            nn.Linear(1024, unify_num),
-            nn.PReLU()
-        )
-        self.p_g_unit_sa = nn.Sequential(
-            nn.Linear(1280, 1280),
-            nn.PReLU(),
-            nn.Linear(1280, unify_num),
-            nn.PReLU()
-        )
-        self.p_m_unit_sa = nn.Sequential(
-            nn.Linear(1280, 1280),
-            nn.PReLU(),
-            nn.Linear(1280, unify_num),
-            nn.PReLU()
-        )
-        # self.Interacting_Layer = nn.TransformerEncoderLayer(unify_num, head_num,batch_first=True)
-        self.global_fusion = BiGatedFusion(unify_num)
-        self.can_layer = CAN_Layer(hidden_dim=unify_num, num_heads=8, agg_mode="cls", use_mask=True)  # baseline unify_num=512;cross-attention unify_num=768
-        # self.mlp_classifier = MlPdecoder_CAN(input_dim=1024)  # 使用源代码维度时 unify_num=512， P_max=1000，d_max=100
-        self.mlp_classifier = MlPdecoder_CAN(input_dim=2048)  # 使用源代码维度时 unify_num=512， P_max=1000，d_max=100
-
-    def forward(self, input_tensors):
-        '''
-        # input_batch
-            c_g_f,(B, 300)----------->(B, unify_num)
-            c_m,(B, d_max, 300)------>(B, d_max,unify_num)
-            p_g_f,(B, 1024)----------->(B, unify_num)
-            p_m,(B, p_max, 1024)------>(B, d_max,unify_num)
-            d_masks,(B, d_max)
-            p_masks,(B, p_max)
-
-            p_g_f_sa,(B, 1280)------->(B, unify_num)
-            p_m_sa,(B, 512, 1280)---->(B, 512, unify_num)
-            p_masks_sa,(B, 512)
-
-        # d_max=100  p_max=1000
-        '''
-        c_g_f, c_m, p_g_f_sa, p_m_sa, p_m_pocket_sa, c_mask, p_mask_sa, p_mask_pocket_sa = input_tensors
-
-        # 特征变换
-        c_g_f = self.c_g_unit(c_g_f)
-        c_m = self.c_m_unit(c_m)
-        p_g_f_sa = self.p_g_unit_sa(p_g_f_sa)  # p_g_f_sa(256,512)
-        p_m_sa = self.p_m_unit_sa(p_m_sa)  # p_m_sa(256,512,512)
-        p_m_pocket_sa = self.p_m_unit_sa(p_m_pocket_sa)
-
-
-# -------------------------------------药物vector，matrix；蛋白质vector，matrix 口袋matrix----------------------
-
-        # global特征做Bi-gate
-        global_embed = self.global_fusion(c_g_f, p_g_f_sa)  # 不加attention指导 AUC：7795 PRC：7926
-
-        # token特征做cross-attention
-        joint_embed = self.can_layer(p_m_pocket_sa, c_m, p_mask_pocket_sa, c_mask)  # 口袋token joint_embed(B,unify_num*2) p_m_sa(B,512,512), c_m(B,300,512)
-        # joint_embed = self.can_layer(p_m_sa, c_m, p_mask_sa, c_mask)  # 全部token
-
-        # 代替CAN token特征直接平均cat
-        # prot_embed = p_m_pocket_sa.mean(1)  # Average over tokens (B, unify_num)
-        # drug_embed = c_m.mean(1)
-        # joint_embed = torch.cat([prot_embed, drug_embed], dim=1)
-
-        joint_embed = torch.cat([joint_embed, global_embed], dim=1)  # 拼接全局信息joint_embed(B,unify_num*4)
-
-        # 没有global fusion 直接拼接  备用：不使用全局
-        # joint_embed = torch.cat([joint_embed, c_g_f, p_g_f_sa], dim=1)  # 拼接全局信息joint_embed(B,unify_num*4)
-
-        predict = self.mlp_classifier(joint_embed)
-        return predict
-
-
-    def get_all_features_with_logits(self, input_tensors):
-        """
-        返回：
-        raw: 原始拼接前的特征
-        g: global 特征
-        i: cross-attention 特征
-        f: fusion 特征（分类器输入）
-        logits: 分类器输出（未过sigmoid）
-        """
-        c_g_f, c_m, p_g_f_sa, p_m_sa, p_m_pocket_sa, c_mask, p_mask_sa, p_mask_pocket_sa = input_tensors
-
-        # 特征变换
-        c_g_f = self.c_g_unit(c_g_f)
-        c_m = self.c_m_unit(c_m)
-        p_g_f_sa = self.p_g_unit_sa(p_g_f_sa)
-        p_m_sa = self.p_m_unit_sa(p_m_sa)
-        p_m_pocket_sa = self.p_m_unit_sa(p_m_pocket_sa)
-
-        # Bi-gated fusion
-        g = self.global_fusion(c_g_f, p_g_f_sa)
-
-        # Cross-attention
-        i = self.can_layer(p_m_pocket_sa, c_m, p_mask_pocket_sa, c_mask)
-
-        # Fusion 特征
-        f = torch.cat([i, g], dim=1)
-
-        # 分类器输出（未sigmoid）
-        logits = self.mlp_classifier(f)
-
-        # raw 为四种输入的 concat（也可自定义）
-        raw = torch.cat([c_g_f, p_g_f_sa], dim=1)
-
-        return raw, g, i, f, logits
 if __name__ == "__main__":
-    c_g_f = torch.ones([2,300]).cuda()
-    c_m = torch.ones([2,16,300]).cuda()
-    p_g_f = torch.ones([2,1024]).cuda()
-    p_m = torch.ones([2,21,1024]).cuda()
-    c_mask = torch.zeros([2,16]).cuda()
-    p_mask = torch.zeros([2,21]).cuda()
 
-    model = ColdstartCPI(100,4).cuda()
-    output = model([c_g_f,c_m,p_g_f,p_m, c_mask, p_mask])
-    print(output.shape)
+    parse = argparse.ArgumentParser()
+    parse.add_argument('--datasets', type=str, default="BioSNAP",
+                       choices=['DrugBank', 'BioSNAP', 'Human'],
+                       help='the dataset of experiment setting')
+    parse.add_argument('--scenarios', type=str, default="warm_start",
+                       choices=['warm_start', 'compound_cold_start', 'protein_cold_start', 'blind_start'],
+                       help='the scenario of experiment setting')
+
+    opt = parse.parse_args()
+    scenarios = opt.scenarios
+    DATASET = opt.datasets
+
+    """select seed"""
+    # torch.backends.cudnn.deterministic = True
+    # device = torch.device('cuda:0')
+    validation = True
+    Epoch = 5000
+    Batch_size = 256
+    # Batch_size = 128
+    Learning_rate = 0.0001
+    Early_stopping_patience = 10
+    """Load preprocessed data."""
+    # DATASET = "Human"  # [DrugBank, BioSNAP, Human]
+    print("Train on {} for {} scenarios.".format(DATASET,scenarios))
+    save_path = "./Results/{}/{}/".format(DATASET,scenarios)
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+
+    K_Fold = 5
+    Loss_List_train, Accuracy_List_train, Precision_List_train, Recall_List_train, F1_List_train, AUC_List_train, AUPR_List_train = [], [], [], [], [], [], []
+    Loss_List_test, Accuracy_List_test, Precision_List_test, Recall_List_test, F1_List_test, AUC_List_test, AUPR_List_test = [], [], [], [], [], [], []
+
+    for i_fold in range(K_Fold):
+        SEED = i_fold
+        random.seed(SEED)
+        torch.manual_seed(SEED)
+        torch.cuda.manual_seed_all(SEED)
+        print('*' * 25, 'No.', i_fold + 1, 'Fold', '*' * 25)
+        train_dataset_load, valid_dataset_load, test_dataset_load = load_scenario_dataset(DATASET, scenarios, i_fold, batch_size=Batch_size)
+
+        """ create model"""
+        model = ColdstartCPI(unify_num=512,head_num=4)
+        # model = nn.DataParallel(model)
+        model = model.cuda()
+        Loss = nn.CrossEntropyLoss(weight=None)
+        patience = 0
+        best_score = 0
+        best_epoch = 0
+
+        optimizer = torch.optim.Adam(model.parameters(), lr=Learning_rate)
+        if not os.path.exists(save_path + 'valid_best_checkpoint{}.pth'.format(i_fold)):
+            """Start training."""
+            print('Training...')
+            epoch_len = len(str(Epoch))
+            for epoch in range(Epoch):
+                trian_pbar = tqdm(
+                    enumerate(
+                        BackgroundGenerator(train_dataset_load)),
+                    total=len(train_dataset_load))
+                """train"""
+                train_losses_in_epoch = []
+                model.train()
+                for trian_i, train_data in trian_pbar:
+                    '''data preparation '''
+                    input_batch, trian_labels = train_data
+                    input_batch = [d.cuda() for d in input_batch]
+                    trian_labels = trian_labels.cuda()
+                    optimizer.zero_grad()
+                    predicted_interaction = model(input_batch)
+                    train_loss = Loss(predicted_interaction, trian_labels)
+                    train_losses_in_epoch.append(train_loss.item())
+                    train_loss.backward()
+                    optimizer.step()
+                train_loss_a_epoch = np.average(train_losses_in_epoch)
+
+                """valid"""
+                valid_pbar = tqdm(
+                    enumerate(
+                        BackgroundGenerator(valid_dataset_load)),
+                    total=len(valid_dataset_load))
+                _,_,valid_loss_a_epoch, _, _, _, _, AUC_dev, PRC_dev = test_precess(model,valid_pbar,Loss)
+                valid_score = AUC_dev + PRC_dev
+                print_msg = (f'[{epoch + 1:>{epoch_len}}/{Epoch:>{epoch_len}}] ' +
+                             f'patience: {patience} ' +
+                             f'train_loss: {train_loss_a_epoch:.5f} ' +
+                             f'valid_loss: {valid_loss_a_epoch:.5f} ' +
+                             f'valid_AUC: {AUC_dev:.5f} ' +
+                             f'valid_PRC: {PRC_dev:.5f} '
+                             )
+                print(print_msg)
+
+                if valid_score > best_score:
+                    best_score = valid_score
+                    patience = 0
+                    best_epoch = epoch + 1
+                    torch.save(model.state_dict(), save_path + 'valid_best_checkpoint{}.pth'.format(i_fold))
+                else:
+                    patience += 1
+
+
+                if patience == Early_stopping_patience:
+                    break
+
+        """Test the best model"""
+        """load trained model"""
+        print('load trained model...')
+        model.load_state_dict(torch.load(save_path + 'valid_best_checkpoint{}.pth'.format(i_fold)))
+
+        trainset_test_results, Loss_train, Accuracy_train, Precision_train, Recall_train, F1_score_train, AUC_train, PRC_train = \
+            test_model(train_dataset_load, save_path, DATASET, Loss)
+        Loss_List_train.append(Loss_train)
+        Accuracy_List_train.append(Accuracy_train)
+        Precision_List_train.append(Precision_train)
+        Recall_List_train.append(Recall_train)
+        F1_List_train.append(F1_score_train)
+        AUC_List_train.append(AUC_train)
+        AUPR_List_train.append(PRC_train)
+        with open(save_path + 'results.txt', 'a') as f:
+            f.write("The result of train set  on {} fold:".format(i_fold) + trainset_test_results + '\n')
+
+        testset_test_results, Loss_test, Accuracy_test, Precision_test, Recall_test, F1_score_test, AUC_test, PRC_test = \
+            test_model(test_dataset_load, save_path, DATASET, Loss)
+        Loss_List_test.append(Loss_test)
+        Accuracy_List_test.append(Accuracy_test)
+        Precision_List_test.append(Precision_test)
+        Recall_List_test.append(Recall_test)
+        F1_List_test.append(F1_score_test)
+        AUC_List_test.append(AUC_test)
+        AUPR_List_test.append(PRC_test)
+        with open(save_path + 'results.txt', 'a') as f:
+            f.write("best_epoch:{} ".format(best_epoch) + testset_test_results + '\n')
+    show_result("Trainset", DATASET, scenarios, Loss_List_train,
+                Accuracy_List_train, Precision_List_train, Recall_List_train, F1_List_train, AUC_List_train,
+                AUPR_List_train)
+    show_result("Testset", DATASET, scenarios, Loss_List_test,
+                Accuracy_List_test, Precision_List_test, Recall_List_test, F1_List_test, AUC_List_test, AUPR_List_test)
+
+
+
+
