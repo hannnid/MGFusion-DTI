@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-@Time:Created on 2021/7/
-@author: Qichang Zhao
-"""
+
 import warnings
 warnings.filterwarnings("ignore")
 import os
