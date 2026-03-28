@@ -49,13 +49,9 @@ pip install -r requirements.txt
 ## 📊 Resources
 + 🔹README.md: this file.
 + 🔹Datasets: The dataset used by MGFusion-DTI
-	Due to size and licensing restrictions, datasets are not included.
-	We use: BioSNAP，BindingDB，DrugBank
-	Please download from:
-	•	https://snap.stanford.edu/biodata/
-	•	https://www.bindingdb.org/
-	•	https://go.drugbank.com/ 
-	+ 「Datsetsname」: 
+	Due to size and licensing restrictions, datasets are not included. We use: BioSNAP，BindingDB，DrugBank.
+Please download from:[BioSNAP](https://snap.stanford.edu/biodata/), [BindingDB](https://www.bindingdb.org/), [Human](https://go.drugbank.com/)
+	+ datsetsname: 
 		+ warm_start: The datasets for warm start.
 		+ compound_cold_start: The datasets for compound cold start.
 		+ protein_cold_start: The datasets for protein cold start.
@@ -76,14 +72,14 @@ pip install -r requirements.txt
   	dataname ∈ {BioSNAP, BindingDB, Human}
   
 	+ ProPocket
- To capture biologically meaningful interaction regions, we extract binding pocket residues from protein 3D structures.
+ 	To capture biologically meaningful interaction regions, we extract binding pocket residues from protein 3D structures.
 
 			python generate_proteinPocket.py --dataset dataname
 
 	+ Saprot
-	📌 Step 1: Obtain Protein Structures
-UniProt IDs from: [UniProt](https://www.uniprot.org/), Save UniProt IDs as a .txt file.
-Obtain protein structures from the [AlphafoldDB](https://alphafold.ebi.ac.uk/) database via the UniProt IDs
+	📌 Step 1: Obtain Protein Structures  
+	UniProt IDs from: [UniProt](https://www.uniprot.org/), Save UniProt IDs as a .txt file.
+	Obtain protein structures from the [AlphafoldDB](https://alphafold.ebi.ac.uk/) database via the UniProt IDs
 
 	📌 Step 2: Download Structure Files
 
