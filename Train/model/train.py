@@ -8,7 +8,7 @@ if "CUDA_VISIBLE_DEVICES" not in os.environ:
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # 默认值
 import random
 
-from model_MutiAttention import ColdstartCPI
+from model import ColdstartCPI
 
 from dataset import load_scenario_dataset
 from prefetch_generator import BackgroundGenerator
