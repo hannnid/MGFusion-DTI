@@ -57,13 +57,13 @@ def encode_proteins(
 
         hidden = hidden.cpu().half() if fp16 else hidden.cpu()
         pooled = pooled.cpu().float()
-        attn_mask = attn_mask.cpu().bool() # 保留mask
+        attn_mask = attn_mask.cpu().bool() # mask
 
         for idx, pid in enumerate(ids):
             result[pid] = [
                 pooled[idx].numpy(),  # vector
                 hidden[idx].numpy(),  # matrix
-                attn_mask[idx].numpy()  # 保留mask
+                attn_mask[idx].numpy()  # mask
             ]
     return result
 
@@ -90,17 +90,13 @@ def main():
     pairs = load_id_seq_list(txt)
     data = encode_proteins(pairs, args.prot_encoder_path, device, args.batch_size, args.max_length, args.fp16_matrix)
 
-    with open(out_pkl, "wb") as f:
-        pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
+    # with open(out_pkl, "wb") as f:
+    #     pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     # k0 = next(iter(data))
-    # v0, m0 = data[k0]
+    # v0, m0, mk0 = data[k0]
     # print(f"Saved to {out_pkl}")
-    # print(f"Example -> ID={k0}, vector={v0.shape}, matrix={m0.shape}, dtype={m0.dtype}")
-    k0 = next(iter(data))
-    v0, m0, mk0 = data[k0]
-    print(f"Saved to {out_pkl}")
-    print(f"Example -> ID={k0}, vector={v0.shape}, matrix={m0.shape}, mask={mk0.shape}, dtype={m0.dtype}, mask_true={mk0.sum()}")
+    # print(f"Example -> ID={k0}, vector={v0.shape}, matrix={m0.shape}, mask={mk0.shape}, dtype={m0.dtype}, mask_true={mk0.sum()}")
 
 
 if __name__ == "__main__":
