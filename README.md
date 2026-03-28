@@ -58,7 +58,7 @@ pip install -r requirements.txt
    We adopt a customized version of [Mol2Vec](https://github.com/samoturk/mol2vec) to encode drug molecules.  
     (dataname ∈ {BioSNAP, BindingDB, Human}), The generated features are stored in the corresponding dataset folder.
    
-			python Mol2Vec.py --dataset dataname  
+			python Mol2Vec.py --dataset {dataset} 
 	+ Saprot(🧬Protein Representation)  
    	We construct structure-aware protein representations based on 3D structure using AlphaFold + Foldseek + SaProt.  
 		📌 Step 1: Obtain Protein Structures
@@ -80,7 +80,7 @@ pip install -r requirements.txt
   + ProPocket  
  	To capture biologically meaningful interaction regions, we extract binding pocket residues from protein 3D structures.
 
-			python generate_proteinPocket.py --dataset dataname
+			python generate_proteinPocket.py --dataset {dataset}
 
 + 🔹Train
 	+ model: The codes of training, testing, and model.
