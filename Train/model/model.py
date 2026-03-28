@@ -35,19 +35,18 @@ class CAN_Layer(nn.Module):
             mask_pair = torch.einsum('blh, bkh->blkh', mask_row, mask_col)
 
             logits = torch.where(mask_pair, logits,
-                                 logits - inf)  # 如果mask_pair=True则保持原logits，否则logits设为负无穷。这样在做softmax时，无效未知的注意力权重会变成0
+                                 logits - inf)  
             alpha = torch.softmax(logits, dim=2)
             mask_row = mask_row.view(N, L1, 1, H).repeat(1, 1, L2, 1)
             alpha = torch.where(mask_row, alpha, torch.zeros_like(alpha))
             return alpha
 
     def apply_heads(self, x, n_heads, n_ch):
-        s = list(x.size())[:-1] + [n_heads, n_ch]  # 通常D=n_heads*n_ch (64,512,768)-->(64,512,8,96)
-        return x.view(*s)  # 对x进行reshape 从(B，L，D)-->(B,L,n_head,n_ch)
+        s = list(x.size())[:-1] + [n_heads, n_ch]  
+        return x.view(*s) 
 
     def forward(self, protein, drug, mask_prot, mask_drug):
-        # True：有效token(需要保留)  False：填充token(需要被mask)
-        # protein_grouped:(64,512,768)--->query_prot(64,512,8,96) 经过query_p(线性投影)形状不变，但数值被投影到了新的语义空间，再通过apply_heads被切分为多头
+        
         query_prot = self.apply_heads(self.query_p(protein), self.num_heads, self.head_size)
         key_prot = self.apply_heads(self.key_p(protein), self.num_heads, self.head_size)
         value_prot = self.apply_heads(self.value_p(protein), self.num_heads, self.head_size)
@@ -63,13 +62,11 @@ class CAN_Layer(nn.Module):
         logits_dd = torch.einsum('blhd, bkhd->blkh', query_drug, key_drug)
         # print("logits_pp:", logits_pp.shape)
 
-        # 以下计算得到注意力权重 形状都是(64,512,512,8)
         alpha_pp = self.alpha_logits(logits_pp, mask_prot, mask_prot)
         alpha_pd = self.alpha_logits(logits_pd, mask_prot, mask_drug)
         alpha_dp = self.alpha_logits(logits_dp, mask_drug, mask_prot)
         alpha_dd = self.alpha_logits(logits_dd, mask_drug, mask_drug)
 
-        # 得到的prot_embedding形状(64,512,768)
         prot_embedding = (torch.einsum('blkh, bkhd->blhd', alpha_pp, value_prot).flatten(-2) +
                           torch.einsum('blkh, bkhd->blhd', alpha_pd, value_drug).flatten(-2)) / 2
         drug_embedding = (torch.einsum('blkh, bkhd->blhd', alpha_dp, value_prot).flatten(-2) +
@@ -89,15 +86,12 @@ class CAN_Layer(nn.Module):
         else:
             raise NotImplementedError()
 
-
-
         query_embed = torch.cat([prot_embed, drug_embed], dim=1)
 
         # print("query_embed:", query_embed.shape)
         return query_embed
 
-#
-# 用门控融合代替transformer
+
 class BiGatedFusion(nn.Module):
     def __init__(self, dim):
         super().__init__()
@@ -113,6 +107,8 @@ class BiGatedFusion(nn.Module):
         # return c_new, p_new
         global_embed = torch.cat([c_new, p_new], dim=1)
         return global_embed
+
+
 class MlPdecoder_CAN(nn.Module):
 
     def __init__(self, input_dim, binary=2, dropout=0.1):  # unify_num=512
@@ -171,12 +167,9 @@ class ColdstartCPI(nn.Module):
             nn.Linear(1280, unify_num),
             nn.PReLU()
         )
-        # self.Interacting_Layer = nn.TransformerEncoderLayer(unify_num, head_num,batch_first=True)
         self.global_fusion = BiGatedFusion(unify_num)
-        self.can_layer = CAN_Layer(hidden_dim=unify_num, num_heads=8, agg_mode="cls", use_mask=True)  # baseline unify_num=512;cross-attention unify_num=768
-        # self.mlp_classifier = MlPdecoder_CAN(input_dim=1024)  # 使用源代码维度时 unify_num=512， P_max=1000，d_max=100
-        self.mlp_classifier = MlPdecoder_CAN(input_dim=2048)  # 使用源代码维度时 unify_num=512， P_max=1000，d_max=100
-
+        self.can_layer = CAN_Layer(hidden_dim=unify_num, num_heads=8, agg_mode="cls", use_mask=True)  
+        self.mlp_classifier = MlPdecoder_CAN(input_dim=2048)
     def forward(self, input_tensors):
         '''
         # input_batch
@@ -195,7 +188,6 @@ class ColdstartCPI(nn.Module):
         '''
         c_g_f, c_m, p_g_f_sa, p_m_sa, p_m_pocket_sa, c_mask, p_mask_sa, p_mask_pocket_sa = input_tensors
 
-        # 特征变换
         c_g_f = self.c_g_unit(c_g_f)
         c_m = self.c_m_unit(c_m)
         p_g_f_sa = self.p_g_unit_sa(p_g_f_sa)  # p_g_f_sa(256,512)
@@ -203,63 +195,19 @@ class ColdstartCPI(nn.Module):
         p_m_pocket_sa = self.p_m_unit_sa(p_m_pocket_sa)
 
 
-# -------------------------------------药物vector，matrix；蛋白质vector，matrix 口袋matrix----------------------
+        # global
+        global_embed = self.global_fusion(c_g_f, p_g_f_sa) 
 
-        # global特征做Bi-gate
-        global_embed = self.global_fusion(c_g_f, p_g_f_sa)  # 不加attention指导 AUC：7795 PRC：7926
+        # token
+        joint_embed = self.can_layer(p_m_pocket_sa, c_m, p_mask_pocket_sa, c_mask)  
 
-        # token特征做cross-attention
-        joint_embed = self.can_layer(p_m_pocket_sa, c_m, p_mask_pocket_sa, c_mask)  # 口袋token joint_embed(B,unify_num*2) p_m_sa(B,512,512), c_m(B,300,512)
-        # joint_embed = self.can_layer(p_m_sa, c_m, p_mask_sa, c_mask)  # 全部token
-
-        # 代替CAN token特征直接平均cat
-        # prot_embed = p_m_pocket_sa.mean(1)  # Average over tokens (B, unify_num)
-        # drug_embed = c_m.mean(1)
-        # joint_embed = torch.cat([prot_embed, drug_embed], dim=1)
-
-        joint_embed = torch.cat([joint_embed, global_embed], dim=1)  # 拼接全局信息joint_embed(B,unify_num*4)
-
-        # 没有global fusion 直接拼接  备用：不使用全局
-        # joint_embed = torch.cat([joint_embed, c_g_f, p_g_f_sa], dim=1)  # 拼接全局信息joint_embed(B,unify_num*4)
+        # concat
+        joint_embed = torch.cat([joint_embed, global_embed], dim=1)  
 
         predict = self.mlp_classifier(joint_embed)
         return predict
 
-
-    def get_all_features_with_logits(self, input_tensors):
-        """
-        返回：
-        raw: 原始拼接前的特征
-        g: global 特征
-        i: cross-attention 特征
-        f: fusion 特征（分类器输入）
-        logits: 分类器输出（未过sigmoid）
-        """
-        c_g_f, c_m, p_g_f_sa, p_m_sa, p_m_pocket_sa, c_mask, p_mask_sa, p_mask_pocket_sa = input_tensors
-
-        # 特征变换
-        c_g_f = self.c_g_unit(c_g_f)
-        c_m = self.c_m_unit(c_m)
-        p_g_f_sa = self.p_g_unit_sa(p_g_f_sa)
-        p_m_sa = self.p_m_unit_sa(p_m_sa)
-        p_m_pocket_sa = self.p_m_unit_sa(p_m_pocket_sa)
-
-        # Bi-gated fusion
-        g = self.global_fusion(c_g_f, p_g_f_sa)
-
-        # Cross-attention
-        i = self.can_layer(p_m_pocket_sa, c_m, p_mask_pocket_sa, c_mask)
-
-        # Fusion 特征
-        f = torch.cat([i, g], dim=1)
-
-        # 分类器输出（未sigmoid）
-        logits = self.mlp_classifier(f)
-
-        # raw 为四种输入的 concat（也可自定义）
-        raw = torch.cat([c_g_f, p_g_f_sa], dim=1)
-
-        return raw, g, i, f, logits
+    
 if __name__ == "__main__":
     c_g_f = torch.ones([2,300]).cuda()
     c_m = torch.ones([2,16,300]).cuda()
