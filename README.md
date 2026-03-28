@@ -119,7 +119,7 @@ This section describes how to reproduce results by training the model from scrat
 
 We provide pretrained models for direct evaluation without retraining.  
 🔗 Download Pretrained Model  
-Please download the pretrained model from: 👉 [Google Drive]([https://drive.google.com/drive/folders/1hLI9s-5qpl5VFTe1m90zzhUdtVmZ8ZsD?usp=drive_link](https://drive.google.com/drive/folders/1yJ-bZHnjy45VyHmet1BlD9ah8szJiTLF?usp=sharing)   
+Please download the pretrained model from: 👉 [Google Drive](https://drive.google.com/drive/folders/1yJ-bZHnjy45VyHmet1BlD9ah8szJiTLF?usp=sharing)  
 + step 1:Ensure that the following feature files are available in Datasets/{dataset}/feature/. (i.e., smiles_Atom2Vec300.pkl, smiles_Mol2Vec300.pkl, sa_SaProt1280.pkl and sa_SaProt1280_pockets.pkl).
   
 + setp 2:After downloading, place the pretrained model folder into: Train/model/Results/{datasets}; 
