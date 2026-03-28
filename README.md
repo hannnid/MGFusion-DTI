@@ -12,7 +12,7 @@ To address this challenge, we propose MGFusion-DTI, a novel framework that:
 	•	Vector-level (global-level) via gated fusion
 	•	Enhances generalization performance in cold-start settings
 
-## MGFusion-DTI framwork
+## 🧩 MGFusion-DTI framwork
 
 <div align="center">
 <p><img src="framwork.jpg" width="600" /></p>
@@ -88,7 +88,7 @@ pip install -r requirements.txt
 		+ model.py: The code of MGFusion-DTI.
 		+ train.py: The code of evaluation in Datasets under warm start, compound cold start, protein cold start, and blind start.
 
-### Reproducibility with training
+### 🏋️ Reproducibility with training
 
 For the warm start experiment on the BioSNAP dataset, you can directly run the following setps.
 
