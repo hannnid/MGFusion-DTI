@@ -39,11 +39,10 @@ MGFusion-DTI is built on [Python3](https://www.python.org/) and [PyTorch](https:
    - Installation typically requires around 1 to 2 hours, depending on network conditions.
 
 #### System Requirements
-`ColdstartCPI` requires only a standard computer with enough RAM to support the in-memory operations. Using GPU could acceralate the training and inference of models.
+`MGFusion-DTI` requires only a standard computer with enough RAM to support the in-memory operations. Using GPU could acceralate the training and inference of models.
 
 Recommended Hardware: 128 GB RAM, 40 CPU processors, 4 TB disk storage, >=30 GB GPU 
 
-Recommended OS: Linux (Ubuntu 16.04, CentOS 7, etc.)
 
 #### Installation
 
@@ -53,10 +52,10 @@ git clone https://github.com/hannnid/MGFusion-DTI
 cd MGFusion-DTI
 
 # create environment named MGFusion-DTI
-conda create -n coldstartcpi python=3.8.0
+conda create -n MGFusion-DTI python=3.8.0
 
 # then the environment can be activated to use
-conda activate coldstartcpi
+conda activate MGFusion-DTI
 
 # install bio_embeddings
 pip install bio-embeddings==0.2.2
@@ -75,18 +74,17 @@ pip install -r requirements.txt
 ## Resources
 + README.md: this file.
 + Datasets: The datasets used in paper.
-	+ BindingDB_AIBind: 
+	+ BioSANP/: 
 		+ warm_start: The datasets for warm start.
 		+ compound_cold_start: The datasets for compound cold start.
 		+ protein_cold_start: The datasets for protein cold start.
 		+ blind_start: The datasets for blind start.
-		+ feature: Contain the SMILES strings of compounds and amino acid sequences of proteins. 
-			+ drug_list.txt: The SMILES strings of compounds
-			+ protein_list.txt: Amino acid sequences of proteins
-		+ drug_without_feature.txt: Contain the compounds of which the SMILES cannot be recongnized by Mol2Vec.
-		+ full_pair.csv: The full dataset with positives and negatives for performance evaluation with scarce data.
-		+ full_pair.txt: The full dataset with positives and negatives for performance evaluation with scarce data.
-		+ protein_without_feature.txt: Contain the proteins of which the amino acid sequence cannot be recongnized by ProtTrans.
+		+ feature: Contain the SMILES strings of drugs and structure-aware sequences of proteins. 
+			+ drug_list.txt: The SMILES strings of drugs
+			+ protein_list.txt: SA sequences of proteins
+		+ drug_without_feature.txt: Contain the drugs of which the SMILES cannot be recongnized by Mol2Vec.
+		+ full_pair.txt: The full dataset with positives and negatives for performance evaluation.
+		+ protein_without_feature.txt: Contain the proteins without 3D files.
 	+ BindingDB: 
 		+ warm_start: The datasets for warm start.
 		+ compound_cold_start: The datasets for compound cold start.
@@ -133,7 +131,7 @@ pip install -r requirements.txt
 	
 	
 + Train
-	+ ColdstartCPI: The codes of training, testing, and model.
+	+ MGFusion-DTI: The codes of training, testing, and model.
 		+ ablation
 			+ model.py: The codes of WOPretrain, WODecouple, WOTransformer, MolTrans_pretrain, and DrugBAN_pretrain.
 			+ dataset.py
@@ -143,7 +141,7 @@ pip install -r requirements.txt
 			+ train_DrugBAN_pretrain.py: The code of evaluation of DrugBAN_pretrain.
 			+ train_MolTrans_pretrain.py: The code of evaluation of MolTrans_pretrain.
 		+ dataset.py
-		+ model.py: The code of ColdstartCPI.
+		+ model.py: The code of MGFusion-DTI.
 		+ train_BindingDB_AIBind.py: The code of evaluation in BindingDB_AIBind under warm start, compound cold start, protein cold start, and blind start.
 		+ train_BindingDB_AIBind_missing.py: The code of evaluation in BindingDB_AIBind with scarce data.
 		+ train_BindingDB.py: The code of evaluation in BindingDB under warm start, compound cold start, protein cold start, and blind start.
@@ -188,11 +186,11 @@ For the warm start experiment on the BindingDB_AIBind dataset, you can directly 
 		
 		The aas_ProtTransBertBFD1024.pkl will generated in [_feature_](/Datasets/BindingDB_AIBind/feature).
 		
-+ setp 2: Training and testing. The codes are in the [_Train/ColdstartCPI_](/Train/ColdstartCPI) folder.
++ setp 2: Training and testing. The codes are in the [_Train/MGFusion-DTI_](/Train/MGFusion-DTI) folder.
 
 	+ python train_BindingDB_AIBind.py --scenarios warm_start
 	
-	The results are saved in the [_Results_](/Train/ColdstartCPI/Results) folder.
+	The results are saved in the [_Results_](/Train/MGFusion-DTI/Results) folder.
 	
 ### Reproducibility without training
 
@@ -200,7 +198,7 @@ We also provide models that have been trained for direct testing. For the warm s
 
 + step 1: Make sure that [_feature_](/Datasets/BindingDB_AIBind/feature) already holds the pre-training feature files (i.e., compound_Atom2Vec300.pkl, compound_Mol2Vec300.pkl, and aas_ProtTransBertBFD1024.pkl) for compounds and proteins;
 
-+ setp 2: Move the fold [_BindingDB_AIBind_](/Pretrian_models/BindingDB_AIBind) to the [_Results_](/Train/ColdstartCPI/Results) folder; 
++ setp 2: Move the fold [_BindingDB_AIBind_](/Pretrian_models/BindingDB_AIBind) to the [_Results_](/Train/MGFusion-DTI/Results) folder; 
 
 + setp 3: Loading trained model and testing
 
