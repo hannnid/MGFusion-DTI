@@ -211,23 +211,23 @@ def load_scenario_dataset(DATASET,scenarios,fold, batch_size):
     # test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=0,pin_memory=True,collate_fn=collate_fn)
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True,
-        num_workers=6,  # 好的开始
+        num_workers=6,  
         collate_fn=collate_fn,
         pin_memory=True,
-        persistent_workers=True,  # 保持worker进程，避免反复创建
-        prefetch_factor=2,  # 每个worker预取2个batch
-        drop_last=True  # 根据你的需求调整
+        persistent_workers=True,  
+        prefetch_factor=2, 
+        drop_last=True 
     )
 
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False,
-        num_workers=3,  # 验证集可以用少一些
+        num_workers=3,  
         pin_memory=True,
         collate_fn=collate_fn,
         persistent_workers=True
     )
 
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False,
-        num_workers=3,  # 测试集也可以用少一些
+        num_workers=3, 
         pin_memory=True,
         collate_fn=collate_fn,
         persistent_workers=True
@@ -239,129 +239,7 @@ def load_scenario_dataset(DATASET,scenarios,fold, batch_size):
 
     return train_loader, val_loader, test_loader
 
-def load_Miss_dataset(DATASET,miss_rate, batch_size, fold=0):
-    columns = ['head', 'tail', 'label']
-    full_df = pd.read_csv("./../../Datasets/{}/full_pair.csv".format(DATASET))[columns]
-    train_df, valid_test_df = split_train_valid(full_df, fold=fold,val_ratio=miss_rate/100)
-    test_df, val_df = split_train_valid(valid_test_df, fold=fold, val_ratio=0.1)
-    train_set = CustomDataSet(train_df.values)
-    val_set = CustomDataSet(val_df.values)
-    test_set = CustomDataSet(test_df.values)
-    try:
-        drug_features = load_pickle("./../../Datasets/{}/feature/compound_Mol2Vec300.pkl".format(DATASET))
-        drug_pretrain = load_pickle("./../../Datasets/{}/feature/compound_Atom2Vec300.pkl".format(DATASET))
-        protein_pretrain = load_pickle("./../../Datasets/{}/feature/aas_ProtTransBertBFD1024.pkl".format(DATASET))
-    except:
-        print("Pre-training features for compounds and proteins are not found in the {}/feature folder, \n\
-        please check the file naming or run Mol2Vec.py and generator.py first.".format(DATASET))
-        raise
-    collate_fn = collater_embeding(drug_features, drug_pretrain, protein_pretrain)
 
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=0,
-                                    collate_fn=collate_fn)
-    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=0,collate_fn=collate_fn)
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=0,collate_fn=collate_fn)
-    print("Number of samples in the train set: ", len(train_set))
-    print("Number of samples in the validation set: ", len(val_set))
-    print("Number of samples in the test set: ", len(test_set))
-
-    return train_loader, val_loader, test_loader
-
-"""load BindingDB of AIBind datasets"""
-def load_BindingDB_AIBind_dataset(DATASET,scenarios, batch_size, fold=0):
-    drug_without_feature = []
-    with open("./../../Datasets/{}/drug_without_feature.txt".format(DATASET)) as file:
-        lines = file.readlines()
-        for line in lines:
-            drug_without_feature.append(line.split()[0])
-    protein_without_feature = []
-    with open("./../../Datasets/{}/protein_without_feature.txt".format(DATASET)) as file:
-        lines = file.readlines()
-        for line in lines:
-            protein_without_feature.append(line.split()[0])
-    columns = ['head', 'tail', 'label']
-    print("load data")
-    train_data_list = pd.read_csv("./../../Datasets/{}/{}/train_set{}.csv".format(DATASET, scenarios, fold))[columns].values
-    val_data_list = pd.read_csv("./../../Datasets/{}/{}/val_set{}.csv".format(DATASET, scenarios, fold))[columns].values
-    test_data_list = pd.read_csv("./../../Datasets/{}/{}/test_set{}.csv".format(DATASET, scenarios, fold))[columns].values
-    # 对每个子集过滤掉那些没有没有特征的drug和protein
-    train_data_list = [pair for pair in train_data_list if pair[0] not in drug_without_feature and pair[1] not in protein_without_feature]
-    val_data_list = [pair for pair in val_data_list if pair[0] not in drug_without_feature and pair[1] not in protein_without_feature]
-    test_data_list = [pair for pair in test_data_list if pair[0] not in drug_without_feature and pair[1] not in protein_without_feature]
-    print("data process done")
-    train_set = CustomDataSet(train_data_list)
-    val_set = CustomDataSet(val_data_list)
-    test_set = CustomDataSet(test_data_list)
-    print("load feature")
-    try:
-        # drug_features = load_pickle("./../../Datasets/{}/feature/compound_Mol2Vec300.pkl".format(DATASET))
-        # drug_pretrain = load_pickle("./../../Datasets/{}/feature/compound_Atom2Vec300.pkl".format(DATASET))
-        drug_features = load_pickle("./../../Datasets/{}/feature/compound_SMILESLM_desc.pkl".format(DATASET))
-        drug_pretrain = load_pickle("./../../Datasets/{}/feature/compound_SMILESLM_tokens.pkl".format(DATASET))
-        protein_pretrain = load_pickle("./../../Datasets/{}/feature/aas_ProtTransBertBFD1024.pkl".format(DATASET))
-    except:
-        print("Pre-training features for compounds and proteins are not found in the {}/feature folder, \n\
-        please check the file naming or run Mol2Vec.py and generator.py first.".format(DATASET))
-        raise
-    collate_fn = collater_embeding(drug_features, drug_pretrain, protein_pretrain)
-    print("feature load done")
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=0,
-                                    collate_fn=collate_fn)
-    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=0,collate_fn=collate_fn)
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=0,collate_fn=collate_fn)
-
-    print("Number of samples in the train set: ", len(train_set))
-    print("Number of samples in the validation set: ", len(val_set))
-    print("Number of samples in the test set: ", len(test_set))
-
-    return train_loader, val_loader, test_loader
-
-def load_BindingDB_AIBind_Miss_dataset(DATASET,miss_rate, batch_size, fold=0):
-    drug_without_feature = []
-    with open("./../../Datasets/{}/drug_without_feature.txt".format(DATASET)) as file:
-        lines = file.readlines()
-        for line in lines:
-            drug_without_feature.append(line.split()[0])
-    protein_without_feature = []
-    with open("./../../Datasets/{}/protein_without_feature.txt".format(DATASET)) as file:
-        lines = file.readlines()
-        for line in lines:
-            protein_without_feature.append(line.split()[0])
-    columns = ['head', 'tail', 'label']
-    full_df = pd.read_csv("./../../Datasets/{}/full_pair.csv".format(DATASET))[columns]
-    train_df, valid_test_df = split_train_valid(full_df, fold=fold,val_ratio=miss_rate/100)
-    test_df, val_df = split_train_valid(valid_test_df, fold=fold, val_ratio=0.1)
-    train_data_list = train_df.values
-    val_data_list = val_df.values
-    test_data_list = test_df.values
-    train_data_list = [pair for pair in train_data_list if
-                       pair[0] not in drug_without_feature and pair[1] not in protein_without_feature]
-    val_data_list = [pair for pair in val_data_list if
-                     pair[0] not in drug_without_feature and pair[1] not in protein_without_feature]
-    test_data_list = [pair for pair in test_data_list if
-                      pair[0] not in drug_without_feature and pair[1] not in protein_without_feature]
-    train_set = CustomDataSet(train_data_list)
-    val_set = CustomDataSet(val_data_list)
-    test_set = CustomDataSet(test_data_list)
-    try:
-        drug_features = load_pickle("./../../Datasets/{}/feature/compound_Mol2Vec300.pkl".format(DATASET))
-        drug_pretrain = load_pickle("./../../Datasets/{}/feature/compound_Atom2Vec300.pkl".format(DATASET))
-        protein_pretrain = load_pickle("./../../Datasets/{}/feature/aas_ProtTransBertBFD1024.pkl".format(DATASET))
-    except:
-        print("Pre-training features for compounds and proteins are not found in the {}/feature folder, \n\
-        please check the file naming or run Mol2Vec.py and generator.py first.".format(DATASET))
-        raise
-    collate_fn = collater_embeding(drug_features, drug_pretrain, protein_pretrain)
-
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=0,
-                                    collate_fn=collate_fn)
-    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=0,collate_fn=collate_fn)
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=0,collate_fn=collate_fn)
-    print("Number of samples in the train set: ", len(train_set))
-    print("Number of samples in the validation set: ", len(val_set))
-    print("Number of samples in the test set: ", len(test_set))
-
-    return train_loader, val_loader, test_loader
 
 
 if __name__ == "__main__":
