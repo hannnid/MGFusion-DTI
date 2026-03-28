@@ -69,7 +69,7 @@ pip install -r requirements.txt
 
 + 🔹Feature Generation 
 	+ Mol2Vec
-	Mol2Vec is customised version of Mol2Vec(https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of drugs.
+	Mol2Vec is customised version of [Mol2Vec](https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of drugs.
 
 			python Mol2Vec.py --dataset dataname
 
@@ -83,7 +83,7 @@ pip install -r requirements.txt
 	+ Saprot
 	📌 Step 1: Obtain Protein Structures
 UniProt IDs from: [UniProt](https://www.uniprot.org/), Save UniProt IDs as a .txt file.
-Obtain protein structures from the [AlphafoldDB]<https://alphafold.ebi.ac.uk/> database via the UniProt IDs
+Obtain protein structures from the [AlphafoldDB](https://alphafold.ebi.ac.uk/) database via the UniProt IDs
 
 	📌 Step 2: Download Structure Files
 
