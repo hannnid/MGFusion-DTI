@@ -90,27 +90,29 @@ pip install -r requirements.txt
 
 ### 🏋️ Reproducibility with training
 
-For the warm start experiment on the BioSNAP dataset, you can directly run the following setps.
+This section describes how to reproduce results by training the model from scratch.
 
-+ step 1: Generate the feature matrices of drugs and proteins
++ step 1: Generate Feature Files
 	+ 1.1 For drugs:
-	
-		+ python Mol2Vec.py --dataset BioSNAP
-		
+ 
+			python Feature_generation/Mol2Vec/Mol2Vec.py --dataset {dataset}  
 		The smiles_Mol2Vec300.pkl and smiles_Atom2Vec300.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).
 		
 	+ 1.2 For proteins:
-		+ python generator.py --dataset BioSNAP
 		
-		The sa_SaProt1280.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).
+			python Feature_generation/Saport/generator.py --dataset {dataset}  
+		The sa_SaProt1280.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).  
+	
+		1.3 Binding Pocket Extraction
 
-		+ python generate_proteinPocket.py --dataset BioSNAP
-    
-		The sa_SaProt1280_pockets.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).  
+			python Feature_generation/ProPocket/generate_proteinPocket.py --dataset {dataset}  
+ 		 The sa_SaProt1280_pockets.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).
+  
 + setp 2: Training and testing. The codes are in the [_Train/model_](/Train/model) folder.
 
-	+ python train.py --datasets BioSNAP --scenarios warm_start
-	
+			python train.py --datasets {datasets} --scenarios {scenarios}
+	📊 Supported Datasets: BioSNAP, BindingDB, Human  
+	🧪 Supported Scenarios: warm_start, drug_cold_start, protein_cold_start,blind_start  
 	The results are saved in the [_Results_](/Train/model/Results) folder.
 	
 ### 🚀 Reproducibility without training
@@ -118,15 +120,15 @@ For the warm start experiment on the BioSNAP dataset, you can directly run the f
 We provide pretrained models for direct evaluation without retraining.  
 🔗 Download Pretrained Model  
 Please download the pretrained model from: 👉 [Google Drive](https://drive.google.com/drive/folders/1hLI9s-5qpl5VFTe1m90zzhUdtVmZ8ZsD?usp=drive_link)  
-+ step 1:Ensure that the following feature files are available in Datasets/BioSNAP/feature/. (i.e., smiles_Atom2Vec300.pkl, smiles_Mol2Vec300.pkl, sa_SaProt1280.pkl and sa_SaProt1280_pockets.pkl) for drugs and proteins;
++ step 1:Ensure that the following feature files are available in Datasets/BioSNAP/feature/. (i.e., smiles_Atom2Vec300.pkl, smiles_Mol2Vec300.pkl, sa_SaProt1280.pkl and sa_SaProt1280_pockets.pkl).
   
 + setp 2:After downloading, place the pretrained model folder into: Train/model/Results/{datasets}; 
 
 + setp 3: Loading trained model and testing
 
 		python train.py --datasets {dataset} --scenarios {scenario}
-📊 Supported Datasets: BioSNAP, BindingDB, Human  
-🧪 Supported Scenarios: warm_start, drug_cold_start, protein_cold_start,blind_start  
+	📊 Supported Datasets: BioSNAP, BindingDB, Human  
+	🧪 Supported Scenarios: warm_start, drug_cold_start, protein_cold_start,blind_start  
 The results are saved in the [_Results_](/Train/model/Results/{dataset}) folder.
 
 
