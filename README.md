@@ -50,7 +50,7 @@ pip install -r requirements.txt
 + 🔹README.md: this file.
 + 🔹Datasets: The dataset used by MGFusion-DTI
 	Due to size and licensing restrictions, datasets are not included. We use: BioSNAP，BindingDB，DrugBank.
-	Please download from: [BioSNAP](https://snap.stanford.edu/biodata/), [BindingDB](https://www.bindingdb.org/), [Human](https://go.drugbank.com/)
+	Please download from: [BioSNAP]([https://snap.stanford.edu/biodata/](https://github.com/kexinhuang12345/MolTrans)), [BindingDB](https://www.bindingdb.org/), [Human]([https://go.drugbank.com/](https://github.com/lifanchen-simm/transformerCPI))
 	
 + 🔹Feature Generation  
   The feature generation pipeline consists of two branches: drug representation and protein representation, followed by binding pocket extraction.  
