@@ -83,72 +83,41 @@ pip install -r requirements.txt
 			python generate_proteinPocket.py --dataset dataname
 
 + 🔹Train
-	+ MGFusion-DTI: The codes of training, testing, and model.
-		+ ablation
-			+ model.py: The codes of WOPretrain, WODecouple, WOTransformer, MolTrans_pretrain, and DrugBAN_pretrain.
-			+ dataset.py
-			+ train_decouple.py: The code of evaluation of WODecouple .
-			+ train_transformer.py: The code of evaluation of WOTransformer.
-			+ train_wopretrain.py: The code of evaluation of WOPretrain.
-			+ train_DrugBAN_pretrain.py: The code of evaluation of DrugBAN_pretrain.
-			+ train_MolTrans_pretrain.py: The code of evaluation of MolTrans_pretrain.
+	+ model: The codes of training, testing, and model.
 		+ dataset.py
 		+ model.py: The code of MGFusion-DTI.
-		+ train_BindingDB_AIBind.py: The code of evaluation in BindingDB_AIBind under warm start, compound cold start, protein cold start, and blind start.
-		+ train_BindingDB_AIBind_missing.py: The code of evaluation in BindingDB_AIBind with scarce data.
-		+ train_BindingDB.py: The code of evaluation in BindingDB under warm start, compound cold start, protein cold start, and blind start.
-		+ train_BindingDB_missing.py: The code of evaluation in BindingDB with scarce data.
-		+ train_BioSNAP.py: The code of evaluation in BioSNAP under warm start, compound cold start, protein cold start, and blind start.
-		+ train_BioSNAP_missing.py: The code of evaluation in BioSNAP with scarce data.
-
-+ Case study: The raw files(PDB and pdbqt), settings and results of Docking.
-
-+ Demo: The code and data for demo.
-
-+ Predictions: 
-Provides trained models and scripts to predict CPIs between user-submitted compound libraries and protein libraries.
-	+ Custom_Data: Reference (default) data
-		+ default
-			+ drug_list.txt: Standard format for compound libraries.
-			+ protein_list.txt: Standard format for protein libraries.
-	+ checkpoint.pth: Trained model.
-	+ Mol2Vec
-	+ predictor.py: Prediction Script.
-	+ model.py
-	+ dataset.py
-
-+ Source_Data: Source data and code used in the manuscript to plot individual figures and tables.
-
-
-## Reproducibility
+		+ train.py: The code of evaluation in Datasets under warm start, compound cold start, protein cold start, and blind start.
 
 ### Reproducibility with training
 
-For the warm start experiment on the BindingDB_AIBind dataset, you can directly run the following setps.
+For the warm start experiment on the BioSNAP dataset, you can directly run the following setps.
 
-+ step 1: Generate the feature matrices of compounds and proteins
-	+ 1.1 For compounds:
++ step 1: Generate the feature matrices of drugs and proteins
+	+ 1.1 For drugs:
 	
-		+ python Mol2Vec.py --dataset BindingDB_AIBind
+		+ python Mol2Vec.py --dataset BioSNAP
 		
-		The compound_Mol2Vec300.pkl and compound_Atom2Vec300.pkl will generated in [_feature_](/Datasets/BindingDB_AIBind/feature).
+		The compound_Mol2Vec300.pkl and compound_Atom2Vec300.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).
 		
 	+ 1.2 For proteins:
-		+ python generator.py --dataset BindingDB_AIBind
+		+ python generator.py --dataset BioSNAP
 		
-		The aas_ProtTransBertBFD1024.pkl will generated in [_feature_](/Datasets/BindingDB_AIBind/feature).
-		
-+ setp 2: Training and testing. The codes are in the [_Train/MGFusion-DTI_](/Train/MGFusion-DTI) folder.
+		The sa_SaProt1280.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).
 
-	+ python train_BindingDB_AIBind.py --scenarios warm_start
+		+ python generate_proteinPocket.py --dataset BioSNAP
+    
+		The sa_SaProt1280_pockets.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).  
++ setp 2: Training and testing. The codes are in the [_Train/model_](/Train/model) folder.
+
+	+ python train.py --datasets BioSNAP --scenarios warm_start
 	
-	The results are saved in the [_Results_](/Train/MGFusion-DTI/Results) folder.
+	The results are saved in the [_Results_](/Train/model/Results) folder.
 	
 ### Reproducibility without training
 
-We also provide models that have been trained for direct testing. For the warm start experiment on the BindingDB_AIBind dataset, you can directly run the following setps.
+We also provide models that have been trained for direct testing. For the warm start experiment on the BioSNAP dataset, you can directly run the following setps.
 
-+ step 1: Make sure that [_feature_](/Datasets/BindingDB_AIBind/feature) already holds the pre-training feature files (i.e., compound_Atom2Vec300.pkl, compound_Mol2Vec300.pkl, and aas_ProtTransBertBFD1024.pkl) for compounds and proteins;
++ step 1: Make sure that [_feature_](/Datasets/BioSNAP/feature) already holds the pre-training feature files (i.e., compound_Atom2Vec300.pkl, compound_Mol2Vec300.pkl, sa_SaProt1280.pkl and sa_SaProt1280_pockets.pkl) for drugs and proteins;
 
 + setp 2: Move the fold [_BindingDB_AIBind_](/Pretrian_models/BindingDB_AIBind) to the [_Results_](/Train/MGFusion-DTI/Results) folder; 
 
@@ -156,7 +125,7 @@ We also provide models that have been trained for direct testing. For the warm s
 
 	+ python train_BindingDB_AIBind.py --scenarios warm_start
 	
-The results are saved in the [_Results_](/Train/MGFusion-DTI/Results) folder.
+The results are saved in the [_Results_](/Train/model/Results) folder.
 
 
 ## Contact
