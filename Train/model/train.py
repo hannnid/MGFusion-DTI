@@ -116,7 +116,7 @@ if __name__ == "__main__":
                        choices=['DrugBank', 'BioSNAP', 'Human'],
                        help='the dataset of experiment setting')
     parse.add_argument('--scenarios', type=str, default="warm_start",
-                       choices=['warm_start', 'compound_cold_start', 'protein_cold_start', 'blind_start'],
+                       choices=['warm_start', 'drug_cold_start', 'protein_cold_start', 'blind_start'],
                        help='the scenario of experiment setting')
 
     opt = parse.parse_args()
