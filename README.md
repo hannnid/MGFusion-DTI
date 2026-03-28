@@ -113,19 +113,21 @@ For the warm start experiment on the BioSNAP dataset, you can directly run the f
 	
 	The results are saved in the [_Results_](/Train/model/Results) folder.
 	
-### Reproducibility without training
+### 🚀 Reproducibility without training
 
-We also provide models that have been trained for direct testing. For the warm start experiment on the BioSNAP dataset, you can directly run the following setps.
-
-+ step 1: Make sure that [_feature_](/Datasets/BioSNAP/feature) already holds the pre-training feature files (i.e., compound_Atom2Vec300.pkl, compound_Mol2Vec300.pkl, sa_SaProt1280.pkl and sa_SaProt1280_pockets.pkl) for drugs and proteins;
-
-+ setp 2: Move the fold [_BindingDB_AIBind_](/Pretrian_models/BindingDB_AIBind) to the [_Results_](/Train/MGFusion-DTI/Results) folder; 
+We provide pretrained models for direct evaluation without retraining.  
+🔗 Download Pretrained Model  
+Please download the pretrained model from: 👉 [Google Drive](https://drive.google.com/drive/folders/1hLI9s-5qpl5VFTe1m90zzhUdtVmZ8ZsD?usp=drive_link)  
++ step 1:Ensure that the following feature files are available in Datasets/BioSNAP/feature/. (i.e., smiles_Atom2Vec300.pkl, smiles_Mol2Vec300.pkl, sa_SaProt1280.pkl and sa_SaProt1280_pockets.pkl) for drugs and proteins;
+  
++ setp 2:After downloading, place the pretrained model folder into: Train/model/Results/{datasets}; 
 
 + setp 3: Loading trained model and testing
 
-	+ python train_BindingDB_AIBind.py --scenarios warm_start
-	
-The results are saved in the [_Results_](/Train/model/Results) folder.
+		python train.py --datasets {dataset} --scenarios {scenario}
+📊 Supported Datasets: BioSNAP, BindingDB, Human  
+🧪 Supported Scenarios: warm_start, drug_cold_start, protein_cold_start,blind_start  
+The results are saved in the [_Results_](/Train/model/Results/{dataset}) folder.
 
 
 ## Contact
