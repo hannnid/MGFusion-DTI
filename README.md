@@ -50,7 +50,7 @@ pip install -r requirements.txt
 + 🔹README.md: this file.
 + 🔹Datasets: The dataset used by MGFusion-DTI
 	Due to size and licensing restrictions, datasets are not included. We use: BioSNAP，BindingDB，DrugBank.
-	Please download from:[BioSNAP](https://snap.stanford.edu/biodata/), [BindingDB](https://www.bindingdb.org/), [Human](https://go.drugbank.com/)
+	Please download from: [BioSNAP](https://snap.stanford.edu/biodata/), [BindingDB](https://www.bindingdb.org/), [Human](https://go.drugbank.com/)
 	+ datsetsname: 
 		+ warm_start: The datasets for warm start.
 		+ compound_cold_start: The datasets for compound cold start.
@@ -65,7 +65,7 @@ pip install -r requirements.txt
 
 + 🔹Feature Generation 
 	+ Mol2Vec
-	Mol2Vec is customised version of [Mol2Vec](https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of drugs.
+ + Mol2Vec is customised version of [Mol2Vec](https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of drugs.
 
 			python Mol2Vec.py --dataset dataname
 
