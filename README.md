@@ -73,8 +73,8 @@ pip install -r requirements.txt
   
 ## Resources
 + README.md: this file.
-+ Datasets: The datasets used in paper.
-	+ BioSANP/: 
++ Datasets: The dataset used by MGFusion-DTI
+	+ 「Datsetsname」: 
 		+ warm_start: The datasets for warm start.
 		+ compound_cold_start: The datasets for compound cold start.
 		+ protein_cold_start: The datasets for protein cold start.
@@ -85,26 +85,7 @@ pip install -r requirements.txt
 		+ drug_without_feature.txt: Contain the drugs of which the SMILES cannot be recongnized by Mol2Vec.
 		+ full_pair.txt: The full dataset with positives and negatives for performance evaluation.
 		+ protein_without_feature.txt: Contain the proteins without 3D files.
-	+ BindingDB: 
-		+ warm_start: The datasets for warm start.
-		+ compound_cold_start: The datasets for compound cold start.
-		+ protein_cold_start: The datasets for protein cold start.
-		+ blind_start: The datasets for blind start.
-		+ feature: Contain the SMILES strings of compounds and amino acid sequences of proteins. 
-			+ drug_list.txt: The SMILES strings of compounds
-			+ protein_list.txt: Amino acid sequences of proteins
-		+ full_pair.csv: The full dataset with positives and negatives for performance evaluation with scarce data.
-	
-	+ BioSNAP
-		+ warm_start: The datasets for warm start.
-		+ compound_cold_start: The datasets for compound cold start.
-		+ protein_cold_start: The datasets for protein cold start.
-		+ blind_start: The datasets for blind start.
-		+ feature: Contain the SMILES strings of compounds and amino acid sequences of proteins. 
-			+ drug_list.txt: The SMILES strings of compounds
-			+ protein_list.txt: Amino acid sequences of proteins
-		+ full_pair.csv: The full dataset with positives and negatives for performance evaluation with scarce data.
-		
+
 + Feature_generation
 
 	+ Mol2Vec
@@ -115,7 +96,7 @@ pip install -r requirements.txt
 
 		python Mol2Vec.py --dataset dataname
 	
-	+ ProtTrans
+	+ Saport
 	
 	You will obtain the feature vectors and matrices of the proteins by following command. **dataname** should be BindingDB_AIBind, BioSNAP, or BindingDB.
 	
