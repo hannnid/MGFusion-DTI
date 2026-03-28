@@ -8,7 +8,7 @@ if "CUDA_VISIBLE_DEVICES" not in os.environ:
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # 默认值
 import random
 
-from model import ColdstartCPI
+from model import MGFusionDTI
 
 from dataset import load_scenario_dataset
 from prefetch_generator import BackgroundGenerator
@@ -152,7 +152,7 @@ if __name__ == "__main__":
         train_dataset_load, valid_dataset_load, test_dataset_load = load_scenario_dataset(DATASET, scenarios, i_fold, batch_size=Batch_size)
 
         """ create model"""
-        model = ColdstartCPI(unify_num=512,head_num=4)
+        model = MGFusionDTI(unify_num=512,head_num=4)
         # model = nn.DataParallel(model)
         model = model.cuda()
         Loss = nn.CrossEntropyLoss(weight=None)
