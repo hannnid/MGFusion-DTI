@@ -82,7 +82,7 @@ pip install -r requirements.txt
 
 	+ Saprot
 	📌 Step 1: Obtain Protein Structures
-UniProt IDs from: [UniProt]<https://www.uniprot.org/>, Save UniProt IDs as a .txt file.
+UniProt IDs from: [UniProt](https://www.uniprot.org/), Save UniProt IDs as a .txt file.
 Obtain protein structures from the [AlphafoldDB]<https://alphafold.ebi.ac.uk/> database via the UniProt IDs
 
 	📌 Step 2: Download Structure Files
