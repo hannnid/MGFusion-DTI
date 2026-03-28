@@ -51,46 +51,31 @@ pip install -r requirements.txt
 + 🔹Datasets: The dataset used by MGFusion-DTI
 	Due to size and licensing restrictions, datasets are not included. We use: BioSNAP，BindingDB，DrugBank.
 	Please download from: [BioSNAP](https://snap.stanford.edu/biodata/), [BindingDB](https://www.bindingdb.org/), [Human](https://go.drugbank.com/)
-	+ datsetsname: 
-		+ warm_start: The datasets for warm start.
-		+ compound_cold_start: The datasets for compound cold start.
-		+ protein_cold_start: The datasets for protein cold start.
-		+ blind_start: The datasets for blind start.
-		+ feature: Contain the SMILES strings of drugs and structure-aware sequences of proteins. 
-			+ drug_list.txt: The SMILES strings of drugs
-			+ protein_list.txt: SA sequences of proteins
-		+ drug_without_feature.txt: Contain the drugs of which the SMILES cannot be recongnized by Mol2Vec.
-		+ full_pair.txt: The full dataset with positives and negatives for performance evaluation.
-		+ protein_without_feature.txt: Contain the proteins without 3D files.
-
-+ 🔹Feature Generation
+	
++ 🔹Feature Generation  
   The feature generation pipeline consists of two branches: drug representation and protein representation, followed by binding pocket extraction.  
 	+ Mol2Vec(💊Drug Representation)  
-   We adopt a customized version of [Mol2Vec](https://github.com/samoturk/mol2vec) to encode drug molecules.
+   We adopt a customized version of [Mol2Vec](https://github.com/samoturk/mol2vec) to encode drug molecules.  
+    (dataname ∈ {BioSNAP, BindingDB, Human}), The generated features are stored in the corresponding dataset folder.
    
-
-			python Mol2Vec.py --dataset dataname
-   (dataname ∈ {BioSNAP, BindingDB, Human}), The generated features are stored in the corresponding dataset folder.
-  
+			python Mol2Vec.py --dataset dataname  
 	+ Saprot(🧬Protein Representation)  
    	We construct structure-aware protein representations based on 3D structure using AlphaFold + Foldseek + SaProt.  
-	 
-	📌 Step 1: Obtain Protein Structures
-	Download protein structure files (.cif) from: [AlphafoldDB](https://alphafold.ebi.ac.uk/)  
-    Using UniProt IDs from: [UniProt](https://www.uniprot.org/)
+		📌 Step 1: Obtain Protein Structures
+		Download protein structure files (.cif) from: [AlphafoldDB](https://alphafold.ebi.ac.uk/)  
+    	Using UniProt IDs from: [UniProt](https://www.uniprot.org/)
 
 			python get_alphafold.py
-  📌 Step 2: Generate Structure-Aware Sequences  
-	Convert protein structures into structure-aware sequences using Foldseek:
+  		📌 Step 2: Generate Structure-Aware Sequences  
+		Convert protein structures into structure-aware sequences using Foldseek:
 
 			python generate_stru_seq.py
- 📌 Step 3: Encode with SaProt  
- 	Encode the structure-aware sequences into embedding matrices:  
+ 		📌 Step 3: Encode with SaProt  
+ 		Encode the structure-aware sequences into embedding matrices:  
 	
  			python Saprot.py  
- 
-⚠️ Important Notes
-	•	The Foldseek binary is required but not included due to size limitations.You can download the binary file from [here](https://drive.google.com/file/d/1B_9t3n_nlj8Y3Kpc_mMjtMdY0OPYa7Re/view) and place it in the utils folder.  
+		⚠️ Important Notes
+		•	The Foldseek binary is required but not included due to size limitations.You can download the binary file from [here](https://drive.google.com/file/d/1B_9t3n_nlj8Y3Kpc_mMjtMdY0OPYa7Re/view) and place it in the utils folder.  
 
   + ProPocket  
  	To capture biologically meaningful interaction regions, we extract binding pocket residues from protein 3D structures.
