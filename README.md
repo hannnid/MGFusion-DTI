@@ -1,7 +1,7 @@
 # MGFusion-DTI
 MGFusion-DTI: Structure-Aware Multi-Granularity Fusion for Cold-Start DTI Prediction
 
-🧠 Introduction
+## 🧠 Installation
 Drug-Target Interaction (DTI) prediction plays a crucial role in drug discovery and repositioning. However, existing methods often suffer from limited generalization ability, especially in cold-start scenarios, where unseen drugs or proteins appear during testing.
 
 To address this challenge, we propose MGFusion-DTI, a novel framework that:
@@ -18,37 +18,8 @@ To address this challenge, we propose MGFusion-DTI, a novel framework that:
 <p><img src="framwork.jpg" width="600" /></p>
 </div>
 
-## Contents
-- [Installation](#Installation)
-- [Demo data](#Demo-data)
-- [Resources](#Resources)
-- [Reproducibility](#Reproducibility)
-- [Prediction](#Prediction)
-- [Contact](#Contact)
-
 
 ## ⚙️ Installation
-
-MGFusion-DTI is built on [Python3](https://www.python.org/) and [PyTorch](https://pytorch.org/).
-   - Prerequisites: \
-       [Python3.*](https://www.python.org/) (version>=3.8)\
-	   [gensim](https://github.com/piskvorky/gensim.git) (version=3.8.3)\
-       [Mol2Vec](https://github.com/samoturk/mol2vec) \
-       [bio_embeddings](https://github.com/sacdallago/bio_embeddings) \
-       [CUDA Toolkit](https://anaconda.org/anaconda/cudatoolkit) (version>=10.2, for GPU only)
-   - Dependencies: \
-       [PyTorch](https://pytorch.org/) (version >=1.9.0, <=1.16.0) \
-	   [numpy](http://www.numpy.org/) (version = 1.22.0)\
-	   [scikit-learn](https://scikit-learn.org/stable/) (version = 1.0.2)\
-	   [pandas](https://github.com/pandas-dev/pandas) (version = 1.0.1)\
-	   [rdkit](https://github.com/rdkit/rdkit) (version = 2022.9.4)\
-	   [tqdm](https://github.com/tqdm/tqdm) \
-	   [prefetch_generator](https://github.com/justheuristic/prefetch_generator) \
-
-   - Installation typically requires around 1 to 2 hours, depending on network conditions.
-
-
-#### Installation
 
 ```shell
 # download MGFusion-DTI
@@ -75,9 +46,9 @@ pip install -r requirements.txt
 
 ```
 	
-## Resources
-+ README.md: this file.
-+ Datasets📊: The dataset used by MGFusion-DTI
+## 📊 Resources
++ 🔹README.md: this file.
++ 🔹Datasets: The dataset used by MGFusion-DTI
 	Due to size and licensing restrictions, datasets are not included.
 	We use: BioSNAP，BindingDB，DrugBank
 	Please download from:
@@ -96,8 +67,7 @@ pip install -r requirements.txt
 		+ full_pair.txt: The full dataset with positives and negatives for performance evaluation.
 		+ protein_without_feature.txt: Contain the proteins without 3D files.
 
-+ Feature Generation🧬 
-This section describes how to generate multi-granularity features for both drugs and proteins. The feature generation pipeline consists of three main components:
++ 🔹Feature Generation 
 	+ Mol2Vec
 	Mol2Vec is customised version of Mol2Vec(https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of drugs.
 
@@ -106,14 +76,14 @@ This section describes how to generate multi-granularity features for both drugs
   	dataname ∈ {BioSNAP, BindingDB, Human}
   
 	+ ProPocket
-	To capture biologically meaningful interaction regions, we extract binding pocket residues from protein 3D structures.
+ To capture biologically meaningful interaction regions, we extract binding pocket residues from protein 3D structures.
 
 			python generate_proteinPocket.py --dataset dataname
 
 	+ Saprot
 	📌 Step 1: Obtain Protein Structures
-		If protein structures are not available, download them from: [AlphafoldDB]<https://alphafold.ebi.ac.uk/>.
-		Using UniProt IDs from: [UniProt]<https://www.uniprot.org/>, Save UniProt IDs as a .txt file.
+UniProt IDs from: [UniProt]<https://www.uniprot.org/>, Save UniProt IDs as a .txt file.
+Obtain protein structures from the [AlphafoldDB]<https://alphafold.ebi.ac.uk/> database via the UniProt IDs
 
 	📌 Step 2: Download Structure Files
 
