@@ -127,9 +127,11 @@ class MlPdecoder_CAN(nn.Module):
         x = self.dropout(self.bn2(F.relu(self.fc2(x))))
         x = self.dropout(self.bn3(F.relu(self.fc3(x))))
         return self.output(x)
-class ColdstartCPI(nn.Module):
+
+
+class MGFusionDTI(nn.Module):
     def __init__(self,unify_num,head_num, dataset = "BindingDB_AIBind"):  # unify_num=512,head_num=4
-        super(ColdstartCPI, self).__init__()
+        super(MGFusionDTI, self).__init__()
         self.c_g_unit = nn.Sequential(
             nn.Linear(300, 300),
             nn.PReLU(),
@@ -216,6 +218,6 @@ if __name__ == "__main__":
     c_mask = torch.zeros([2,16]).cuda()
     p_mask = torch.zeros([2,21]).cuda()
 
-    model = ColdstartCPI(100,4).cuda()
+    model = MGFusionDTI(100,4).cuda()
     output = model([c_g_f,c_m,p_g_f,p_m, c_mask, p_mask])
     print(output.shape)
