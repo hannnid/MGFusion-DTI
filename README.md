@@ -65,11 +65,9 @@ pip install -r requirements.txt
 
 + 🔹Feature Generation 
 	+ Mol2Vec  
-   Mol2Vec is customised version of [Mol2Vec](https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of drugs.
+   Mol2Vec is customised version of [Mol2Vec](https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of drugs. (dataname ∈ {BioSNAP, BindingDB, Human})
 
 			python Mol2Vec.py --dataset dataname
-
-  	dataname ∈ {BioSNAP, BindingDB, Human}
   
 	+ ProPocket  
  	To capture biologically meaningful interaction regions, we extract binding pocket residues from protein 3D structures.
@@ -77,20 +75,17 @@ pip install -r requirements.txt
 			python generate_proteinPocket.py --dataset dataname
 
 	+ Saprot  
+   	We construct structure-aware protein sequences based on 3D structure files (.cif) using Foldseek and SaProt.  
+	Obtain protein structures from the [AlphafoldDB](https://alphafold.ebi.ac.uk/) database via the UniProt IDs. UniProt IDs from: [UniProt](https://www.uniprot.org/), Save UniProt IDs as a .txt file.  
 	📌 Step 1: Obtain Protein Structures  
-	UniProt IDs from: [UniProt](https://www.uniprot.org/), Save UniProt IDs as a .txt file.
-	Obtain protein structures from the [AlphafoldDB](https://alphafold.ebi.ac.uk/) database via the UniProt IDs.  
-	📌 Step 2: Download Structure Files  
-
+	
 			python get_alphafold.py
-	This script retrieves .cif files from AlphaFoldDB.  
-	📌 Step 3: Generate Structure-Aware Sequences  
+  		 📌 Step 2: Generate Structure-Aware Sequences  
 
-		python generate_stru_seq.py
-	This step converts protein structures into structure-aware sequences using Foldseek.  
+			python generate_stru_seq.py
+		This step converts protein structures into structure-aware sequences using Foldseek.   
 ⚠️ Important Notes
-	•	The Foldseek binary is required but not included due to size limitations.You can download the binary file from [here]<> and place it in the utils folder.
-	•	Please download it manually and place it in Feature_generation/Saport/get_stru-aware_seq/utils/
+	•	The Foldseek binary is required but not included due to size limitations.You can download the binary file from [here](https://drive.google.com/file/d/1B_9t3n_nlj8Y3Kpc_mMjtMdY0OPYa7Re/view) and place it in the utils folder.
 	
 You will obtain the feature vectors and matrices of the proteins by following command. **dataname** should be BioSNAP, DrugBank or Human.
 	
