@@ -1,7 +1,16 @@
 # MGFusion-DTI
 MGFusion-DTI: Structure-Aware Multi-Granularity Fusion for Cold-Start DTI Prediction
 
-Drug-target interaction (DTI) prediction plays a crucial role in computational drug discovery, facilitating drug repurposing and accelerating new drug development. Despite recent advances in deep learning-based methods, model performance remains limited under cold-start scenarios, where unseen drugs or targets are encountered. Moreover, existing approaches often rely on global-level feature fusion, which may overlook fine-grained local interactions driven by key residues and neglect the structural context of proteins. To address these challenges, we propose a structure-aware multi-granularity fusion framework, termed MGFusion-DTI, for DTI prediction under cold-start scenarios. The proposed model integrates structure-aware protein representations with sequence-based drug features and adopts a multi-level interaction modeling strategy. Specifically, a cross-attention mechanism is employed to capture fine-grained interactions between drug substructures and protein residues, with emphasis on residues located in predicted binding pockets. In parallel, global representations are jointly modeled to account for potential long-range regulatory effects, enabling the model to capture both local binding patterns and global structural dependencies. Extensive experiments on three benchmark datasets demonstrate that MGFusion-DTI consistently outperforms state-of-the-art methods across both warm-start and multiple cold-start scenarios, with particularly strong performance in blind-start settings.
+🧠 Introduction
+Drug-Target Interaction (DTI) prediction plays a crucial role in drug discovery and repositioning. However, existing methods often suffer from limited generalization ability, especially in cold-start scenarios, where unseen drugs or proteins appear during testing.
+
+To address this challenge, we propose MGFusion-DTI, a novel framework that:
+	•	Incorporates structure-aware sequence representations
+	•	Extracts binding pocket residues from protein structures
+	•	Performs multi-granularity fusion at both:
+	•	Token-level (matrix-level) via cross-attention
+	•	Vector-level (global-level) via gated fusion
+	•	Enhances generalization performance in cold-start settings
 
 ## MGFusion-DTI framwork
 
@@ -18,7 +27,7 @@ Drug-target interaction (DTI) prediction plays a crucial role in computational d
 - [Contact](#Contact)
 
 
-## Installation
+## ⚙️ Installation
 
 MGFusion-DTI is built on [Python3](https://www.python.org/) and [PyTorch](https://pytorch.org/).
    - Prerequisites: \
@@ -37,11 +46,6 @@ MGFusion-DTI is built on [Python3](https://www.python.org/) and [PyTorch](https:
 	   [prefetch_generator](https://github.com/justheuristic/prefetch_generator) \
 
    - Installation typically requires around 1 to 2 hours, depending on network conditions.
-
-#### System Requirements
-`MGFusion-DTI` requires only a standard computer with enough RAM to support the in-memory operations. Using GPU could acceralate the training and inference of models.
-
-Recommended Hardware: 128 GB RAM, 40 CPU processors, 4 TB disk storage, >=30 GB GPU 
 
 
 #### Installation
@@ -70,10 +74,16 @@ conda install pytorch==1.9.1 torchvision==0.10.1 torchaudio==0.9.1 cudatoolkit=1
 pip install -r requirements.txt
 
 ```
-  
+	
 ## Resources
 + README.md: this file.
-+ Datasets: The dataset used by MGFusion-DTI
++ Datasets📊: The dataset used by MGFusion-DTI
+	Due to size and licensing restrictions, datasets are not included.
+	We use: BioSNAP，BindingDB，DrugBank
+	Please download from:
+	•	https://snap.stanford.edu/biodata/
+	•	https://www.bindingdb.org/
+	•	https://go.drugbank.com/ 
 	+ 「Datsetsname」: 
 		+ warm_start: The datasets for warm start.
 		+ compound_cold_start: The datasets for compound cold start.
@@ -86,29 +96,40 @@ pip install -r requirements.txt
 		+ full_pair.txt: The full dataset with positives and negatives for performance evaluation.
 		+ protein_without_feature.txt: Contain the proteins without 3D files.
 
-+ Feature_generation
-
++ Feature Generation🧬 
+This section describes how to generate multi-granularity features for both drugs and proteins. The feature generation pipeline consists of three main components:
 	+ Mol2Vec
-	
-	Mol2Vec is customised version of Mol2Vec(https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of compounds.
-	
-	You will obtain the feature vectors and matrices of the compounds by following command. **dataname** should be BioSNAP, DrugBank or Human.
+	Mol2Vec is customised version of Mol2Vec(https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of drugs.
 
-		python Mol2Vec.py --dataset dataname
+			python Mol2Vec.py --dataset dataname
 
-  	+ ProPocket
-	
-	Obtain the residue indices of the binding pocket of the target protein from the 3D structure.
+  	dataname ∈ {BioSNAP, BindingDB, Human}
+  
+	+ ProPocket
+	To capture biologically meaningful interaction regions, we extract binding pocket residues from protein 3D structures.
 
-		python generate_proteinPocket.py --dataset dataname
+			python generate_proteinPocket.py --dataset dataname
 
 	+ Saprot
+	📌 Step 1: Obtain Protein Structures
+		If protein structures are not available, download them from: [AlphafoldDB]<https://alphafold.ebi.ac.uk/>.
+		Using UniProt IDs from: [UniProt]<https://www.uniprot.org/>, Save UniProt IDs as a .txt file.
+
+	📌 Step 2: Download Structure Files
+
+			python get_alphafold.py
+	This script retrieves .cif files from AlphaFoldDB.
+
+	📌 Step 3: Generate Structure-Aware Sequences
+
+		python generate_stru_seq.py
+	This step converts protein structures into structure-aware sequences using Foldseek.
+
+⚠️ Important Notes
+	•	The Foldseek binary is required but not included due to size limitations.You can download the binary file from [here]<> and place it in the utils folder.
+	•	Please download it manually and place it in Feature_generation/Saport/get_stru-aware_seq/utils/
 	
-	1.Obtain the structure-aware sequence of protein.
-  	
-  	+ Saport
-	
-	You will obtain the feature vectors and matrices of the proteins by following command. **dataname** should be BioSNAP, DrugBank or Human.
+You will obtain the feature vectors and matrices of the proteins by following command. **dataname** should be BioSNAP, DrugBank or Human.
 	
 		python generator.py --dataset dataname
 		
