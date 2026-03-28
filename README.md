@@ -92,13 +92,23 @@ pip install -r requirements.txt
 	
 	Mol2Vec is customised version of Mol2Vec(https://github.com/samoturk/mol2vec). We recode the mol2vec/feature.py to generate feature matrices of compounds.
 	
-	You will obtain the feature vectors and matrices of the compounds by following command. **dataname** should be BindingDB_AIBind, BioSNAP, or BindingDB.
+	You will obtain the feature vectors and matrices of the compounds by following command. **dataname** should be BioSNAP, DrugBank or Human.
 
 		python Mol2Vec.py --dataset dataname
+
+  	+ ProPocket
 	
-	+ Saport
+	Obtain the residue indices of the binding pocket of the target protein from the 3D structure.
+
+		python generate_proteinPocket.py --dataset dataname
+
+	+ Saprot
 	
-	You will obtain the feature vectors and matrices of the proteins by following command. **dataname** should be BindingDB_AIBind, BioSNAP, or BindingDB.
+	1.Obtain the structure-aware sequence of protein.
+  	
+  	+ Saport
+	
+	You will obtain the feature vectors and matrices of the proteins by following command. **dataname** should be BioSNAP, DrugBank or Human.
 	
 		python generator.py --dataset dataname
 		
