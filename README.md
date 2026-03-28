@@ -97,7 +97,7 @@ For the warm start experiment on the BioSNAP dataset, you can directly run the f
 	
 		+ python Mol2Vec.py --dataset BioSNAP
 		
-		The compound_Mol2Vec300.pkl and compound_Atom2Vec300.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).
+		The smiles_Mol2Vec300.pkl and smiles_Atom2Vec300.pkl will generated in [_feature_](/Datasets/BioSNAP/feature).
 		
 	+ 1.2 For proteins:
 		+ python generator.py --dataset BioSNAP
