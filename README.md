@@ -15,36 +15,33 @@ To address this challenge, we propose MGFusion-DTI, a novel framework that:
 ## 🧩 MGFusion-DTI framwork
 
 <div align="center">
-<p><img src="framwork.jpg" width="600" /></p>
+<p><img src="framework.jpg" width="700" /></p>
 </div>
 
 
 ## ⚙️ Installation
 
-```shell
-# download MGFusion-DTI
-git clone https://github.com/hannnid/MGFusion-DTI
+# Clone the repository
+git clone https://github.com/hannnid/MGFusion-DTI.git
 cd MGFusion-DTI
 
-# create environment named MGFusion-DTI
+# Create a conda environment
 conda create -n MGFusion-DTI python=3.8.0
-
-# then the environment can be activated to use
 conda activate MGFusion-DTI
 
-# install bio_embeddings
+# Install bio_embeddings
 pip install bio-embeddings==0.2.2
 pip install bio-embeddings[all]
 
-# Install pytorch according to hardware
+# Install PyTorch according to your CUDA version
+# CUDA 11.3
 conda install pytorch==1.12.0 torchvision==0.13.0 torchaudio==0.12.0 cudatoolkit=11.3 -c pytorch
-# or
+
+# or CUDA 10.2
 conda install pytorch==1.9.1 torchvision==0.10.1 torchaudio==0.9.1 cudatoolkit=10.2 -c pytorch
 
-# install other tools in requirements.txt
+# Install other dependencies
 pip install -r requirements.txt
-
-```
 	
 ## 📊 Resources
 + 🔹README.md: this file.
