@@ -1,7 +1,7 @@
 # MGFusion-DTI
 MGFusion-DTI: Structure-Aware Multi-Granularity Fusion for Cold-Start DTI Prediction
 
-## 🧠 Introduction
+# 🧠 Introduction
 Drug-Target Interaction (DTI) prediction plays a crucial role in drug discovery and repositioning. However, existing methods often suffer from limited generalization ability, especially in cold-start scenarios, where unseen drugs or proteins appear during testing.  
 
 To address this challenge, we propose MGFusion-DTI, a novel framework that:  
@@ -12,38 +12,38 @@ To address this challenge, we propose MGFusion-DTI, a novel framework that:
 	•	Vector-level (global-level) via gated fusion  
 	•	Enhances generalization performance in cold-start settings  
 
-## 🧩 MGFusion-DTI framwork
+# 🧩 MGFusion-DTI framwork
 
 <div align="center">
 <p><img src="framework.jpg" width="700" /></p>
 </div>
 
 
-## ⚙️ Installation
+# ⚙️ Installation
 
-# Clone the repository
+## Clone the repository
 git clone https://github.com/hannnid/MGFusion-DTI.git
 cd MGFusion-DTI
 
-# Create a conda environment
+## Create a conda environment
 conda create -n MGFusion-DTI python=3.8.0
 conda activate MGFusion-DTI
 
-# Install bio_embeddings
+## Install bio_embeddings
 pip install bio-embeddings==0.2.2
 pip install bio-embeddings[all]
 
-# Install PyTorch according to your CUDA version
-# CUDA 11.3
+## Install PyTorch according to your CUDA version
+### CUDA 11.3
 conda install pytorch==1.12.0 torchvision==0.13.0 torchaudio==0.12.0 cudatoolkit=11.3 -c pytorch
 
-# or CUDA 10.2
+### or CUDA 10.2
 conda install pytorch==1.9.1 torchvision==0.10.1 torchaudio==0.9.1 cudatoolkit=10.2 -c pytorch
 
-# Install other dependencies
+## Install other dependencies
 pip install -r requirements.txt
 	
-## 📊 Resources
+# 📊 Resources
 + 🔹README.md: this file.
 + 🔹Datasets: The dataset used by MGFusion-DTI
 	Due to size and licensing restrictions, datasets are not included. We use: BioSNAP，BindingDB，DrugBank.
