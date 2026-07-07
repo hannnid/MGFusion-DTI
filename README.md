@@ -168,7 +168,7 @@ The results will be saved in: Train/model/Results/{dataset}/
 
 # 📬 Contact
 If you have any questions, please feel free to contact us:  
-👧Hui Han。
+👧Hui Han  
 Department of Computer Science, University of Tsukuba  
 Email: s2530161@u.tsukuba.ac.jp  
 
