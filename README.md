@@ -134,16 +134,16 @@ Run the following command:
 cd Train/model
 python train.py --datasets {dataset} --scenarios {scenario}
 ```
+The results will be saved in: Train/model/Results/{dataset}/ 
 ###### 📊Supported datasets: BioSNAP, DrugBank, Human  
 ###### 🧪Supported scenarios: warm_start, drug_cold_start, target_cold_start, blind_start  
-The results will be saved in: Train/model/Results/{dataset}/  
 
-
+ 
 # 🚀 Reproducibility without Training
 We also provide pretrained models for direct evaluation without retraining.
 
 👉Step 1: Download Pretrained Models
-Please download the pretrained models from: [Google Drive](https://drive.google.com/drive/folders/1yJ-bZHnjy45VyHmet1BlD9ah8szJiTLF?usp=sharing)
+Please download the pretrained models from: [Google Drive](https://drive.google.com/drive/folders/1yJ-bZHnjy45VyHmet1BlD9ah8szJiTLF?usp=sharing)  
 After downloading, place the pretrained model folder under: Train/model/Results/{dataset}/  
 
 👉Step 2: Prepare Feature Files
@@ -161,9 +161,10 @@ sa_SaProt1280_pockets.pkl
 cd Train/model
 python train.py --datasets {dataset} --scenarios {scenario}
 ```
+The results will be saved in: Train/model/Results/{dataset}/  
 ###### 📊Supported datasets: BioSNAP, DrugBank, Human  
 ###### 🧪Supported scenarios: warm_start, drug_cold_start, target_cold_start, blind_start  
-The results will be saved in: Train/model/Results/{dataset}/  
+
 
 # 📬 Contact
 If you have any questions, please feel free to contact us:  
