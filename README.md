@@ -76,48 +76,45 @@ After downloading, please place the processed dataset files under: Datasets/{dat
 The feature generation pipeline consists of three parts:  
 1. Drug representation generation
 2. Structure-aware protein representation generation
-3. Binding pocket extraction  
-   
-1. 💊Drug Representation with Mol2Vec  
+3. Binding pocket extraction
+
+### 1. 💊Drug Representation with Mol2Vec  
 We adopt a customized version of [Mol2Vec](https://github.com/samoturk/mol2vec)⁠￼ to encode drug molecules into substructure-level representations.
 ```
 python Feature_generation/Mol2Vec/Mol2Vec.py --dataset {dataset}
 ```
 The generated feature files will be saved in: Datasets/{dataset}/feature/  
-
-2. 🧬Protein Representation with SaProt
-MGFusion-DTI constructs structure-aware protein representations using AlphaFold structures, Foldseek, and SaProt.
-👉Step 1: Obtain Protein Structures
+### 2. 🧬Protein Representation with SaProt  
+MGFusion-DTI constructs structure-aware protein representations using AlphaFold structures, Foldseek, and SaProt.  
+👉Step 1: Obtain Protein Structures  
 Download protein structure files from the [AlphaFold Protein Structure Database⁠](https://alphafold.ebi.ac.uk/)￼ using [UniProt](https://www.uniprot.org/) IDs.
 ```
 python Feature_generation/SaProt/get_alphafold.py --dataset {dataset}
 ```
-👉Step 2: Generate Structure-Aware Sequences
+👉Step 2: Generate Structure-Aware Sequences  
 Convert protein structures into structure-aware sequences using Foldseek.
 ```
 python Feature_generation/SaProt/generate_stru_seq.py --dataset {dataset}
 ```
-👉Step 3: Encode Structure-Aware Sequences with SaProt
+👉Step 3: Encode Structure-Aware Sequences with SaProt  
 Encode structure-aware protein sequences into residue-level embedding matrices.
 ```
 python Feature_generation/SaProt/SaProt.py --dataset {dataset}
 ```
-The generated feature file will be saved in: Datasets/{dataset}/feature/
-### ⚠️Important Notes
+The generated feature file will be saved in: Datasets/{dataset}/feature/  
+###### ⚠️Important Notes
 The Foldseek binary is required but not included in this repository due to file size limitations. Please download Foldseek and place the executable file in the corresponding utility folder before generating structure-aware sequences.  
-
-3. 🪢Binding Pocket Extraction
+### 3. 🪢Binding Pocket Extraction
 To capture biologically relevant interaction regions, MGFusion-DTI extracts binding pocket residues from protein 3D structures.
 ```
 python Feature_generation/ProPocket/generate_proteinPocket.py --dataset {dataset}
 ```
 The generated pocket-aware protein feature file will be saved in: Datasets/{dataset}/feature/  
 
-
 # 🏋️ Reproducibility with Training
 This section describes how to reproduce the results by training MGFusion-DTI from scratch.
 
-👉Step 1: Generate Feature Files
+👉Step 1: Generate Feature Files  
 1.1 Drug Features
 ```
 python Feature_generation/Mol2Vec/Mol2Vec.py --dataset {dataset}
@@ -137,8 +134,8 @@ Run the following command:
 cd Train/model
 python train.py --datasets {dataset} --scenarios {scenario}
 ```
-📊Supported datasets: BioSNAP, DrugBank, Human  
-🧪Supported scenarios: warm_start, drug_cold_start, target_cold_start, blind_start  
+###### 📊Supported datasets: BioSNAP, DrugBank, Human  
+###### 🧪Supported scenarios: warm_start, drug_cold_start, target_cold_start, blind_start  
 The results will be saved in: Train/model/Results/{dataset}/  
 
 
@@ -164,8 +161,8 @@ sa_SaProt1280_pockets.pkl
 cd Train/model
 python train.py --datasets {dataset} --scenarios {scenario}
 ```
-📊Supported datasets: BioSNAP, DrugBank, Human  
-🧪Supported scenarios: warm_start, drug_cold_start, target_cold_start, blind_start  
+###### 📊Supported datasets: BioSNAP, DrugBank, Human  
+###### 🧪Supported scenarios: warm_start, drug_cold_start, target_cold_start, blind_start  
 The results will be saved in: Train/model/Results/{dataset}/  
 
 # 📬 Contact
