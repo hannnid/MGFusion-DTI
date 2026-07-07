@@ -127,7 +127,7 @@ python Feature_generation/SaProt/SaProt.py --dataset {dataset}
 ```
 python Feature_generation/ProPocket/generate_proteinPocket.py --dataset {dataset}
 ```
-👉Step 2: Train and Evaluate
+👉Step 2: Train and Evaluate  
 The training and evaluation scripts are located in: Train/model/  
 Run the following command:
 ```
