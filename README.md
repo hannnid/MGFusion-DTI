@@ -73,8 +73,9 @@ Please download the original datasets from the following sources:
 * [BioSNAP](https://snap.stanford.edu/biodata/](https://github.com/kexinhuang12345/MolTrans))
 * [DrugBank](https://go.drugbank.com/](https://github.com/lifanchen-simm/transformerCPI))
 * [Human](https://go.drugbank.com/](https://github.com/lifanchen-simm/transformerCPI))  
-After downloading, please place the processed dataset files under: Datasets/{dataset}/
+After downloading, please place the processed dataset files under: Datasets/{dataset}/  
 
+  
 # 🔬 Feature Generation
 The feature generation pipeline consists of three parts:  
 1. Drug representation generation
@@ -114,6 +115,7 @@ python Feature_generation/ProPocket/generate_proteinPocket.py --dataset {dataset
 ```
 The generated pocket-aware protein feature file will be saved in: Datasets/{dataset}/feature/  
 
+  
 # 🏋️ Reproducibility with Training
 This section describes how to reproduce the results by training MGFusion-DTI from scratch.
 
@@ -140,7 +142,7 @@ python train.py --datasets {dataset} --scenarios {scenario}
 The results will be saved in: Train/model/Results/{dataset}/ 
 ###### 📊Supported datasets: BioSNAP, DrugBank, Human  
 ###### 🧪Supported scenarios: warm_start, drug_cold_start, target_cold_start, blind_start  
-
+  
  
 # 🚀 Reproducibility without Training
 We also provide pretrained models for direct evaluation without retraining.
