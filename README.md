@@ -1,5 +1,6 @@
 # MGFusion-DTI
-MGFusion-DTI: Structure-Aware Multi-Granularity Fusion for Cold-Start DTI Prediction
+### MGFusion-DTI: Structure-Aware Multi-Granularity Fusion for Cold-Start DTI Prediction
+MGFusion-DTI is a structure-aware multi-granularity fusion framework for drug-target interaction (DTI) prediction under cold-start scenarios. The framework incorporates protein structural information, binding pocket priors, pocket-level token interaction, and global-level representation fusion to improve generalization to unseen drugs and targets.
 
 # 🧠 Introduction
 Drug-target interaction (DTI) prediction plays an important role in computational drug discovery and drug repurposing. However, existing methods often suffer from limited generalization ability, especially under cold-start scenarios, where unseen drugs, unseen proteins, or both appear during testing. To address this challenge, MGFusion-DTI integrates structure-aware protein representations and multi-granularity interaction modeling. The main features of MGFusion-DTI include:  
