@@ -5,7 +5,7 @@ MGFusion-DTI is a structure-aware multi-granularity fusion framework for drug-ta
 # 🧠 Overview
 Drug-target interaction (DTI) prediction plays an important role in computational drug discovery and drug repurposing. However, existing methods often suffer from limited generalization ability under cold-start scenarios, where unseen drugs, unseen proteins, or both appear during testing. To address this challenge, MGFusion-DTI combines structure-aware protein representations with multi-granularity interaction modeling.
 
-### ✨ Key Features
+### ✨ Key Points
 * Structure-aware protein representation using AlphaFold structures, Foldseek, and SaProt
 * Binding pocket residue extraction from protein 3D structures
 * Drug substructure representation using Mol2Vec
