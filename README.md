@@ -71,7 +71,7 @@ MGFusion-DTI/
 Due to size and licensing restrictions, datasets are not included. We use: BioSNAP，BindingDB，DrugBank.  
 Please download the original datasets from the following sources:
 * [BioSNAP](https://github.com/kexinhuang12345/MolTrans)
-* [DrugBank](https://go.drugbank.com/)
+* [DrugBank](https://github.com/jcsun-00/DrugBank/tree/main)
 * [Human](https://github.com/lifanchen-simm/transformerCPI)  
 After downloading, please place the processed dataset files under: Datasets/{dataset}/  
 
