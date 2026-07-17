@@ -57,10 +57,11 @@ MGFusion-DTI/
 │   ├── Mol2Vec/
 │   ├── SaProt/
 │   └── ProPocket/
+├── Pretrain_models
 ├── Train/
 │   └── model/
 │       ├── dataset.py
-│       ├── model.py
+│       ├── MGFusionDTI.py
 │       ├── train.py
 │       └── Results/
 ├── README.md
